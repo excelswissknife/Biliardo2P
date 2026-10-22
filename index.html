@@ -191,7 +191,7 @@ const CLUB = {name:"Biliardo Seconda Passione", short:"Seconda Passione", city:"
 /* Formule di gara: per una nuova competizione a squadre basta aggiungerne una qui.
    pts = punti squadra per l'incontro vinto; step = cambio in staffetta; opts = specialità scelta all'acchito */
 const FORMULE = {
-  base: {nome:"Campionato a Squadre di Base", matches:[
+  base: {nome:"Campionato Regionale a Squadre di Base", matches:[
     {kind:"Singolo",  spec:"Italiana",   target:100, h:[""], a:[""], pts:1},
     {kind:"Singolo",  spec:"Filotto 60", target:600, h:[""], a:[""], pts:1},
     {kind:"Singolo",  spec:"Goriziana",  target:400, h:[""], a:[""], pts:1},
@@ -381,7 +381,7 @@ function updText(){
   const d = new Date(p.updatedAt).toLocaleDateString("it-IT",{day:"numeric",month:"numeric",timeZone:"Europe/Rome"});
   const td = new Date().toLocaleDateString("it-IT",{day:"numeric",month:"numeric",timeZone:"Europe/Rome"});
   const when = `<b>${fmtTime(p.updatedAt)}</b>${d!==td?` del ${d}`:""}`;
-  return p.stato==="finita" ? `Risultato finale · ultimo aggiornamento alle ${when}` : `Aggiornato alle ${when} · la pagina si aggiorna da sola`;
+  return p.stato==="finita" ? `Risultato finale · ultimo aggiornamento alle ${when}` : `Aggiornato alle ${when} · la pagina si aggiorna automaticamente`;
 }
 function boardHTML(){
   const t = totals();
