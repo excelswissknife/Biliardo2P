@@ -110,6 +110,16 @@ button.no{cursor:pointer}
 .foot{color:var(--dim);font-size:14px;text-align:center;letter-spacing:.04em}
 
 .bump{animation:bump .7s ease-out}
+/* punti nuovi: etichetta "+12" che compare sopra il punteggio, lampeggia due volte e "cade" nel totale, che poi conta fino al nuovo valore */
+.side{position:relative}
+.fly{position:absolute;pointer-events:none;z-index:2;font-family:var(--fh);font-weight:700;font-size:22px;line-height:1;padding:3px 8px;border-radius:6px;
+  background:var(--home);color:#04121c;white-space:nowrap;box-shadow:0 0 16px rgba(60,200,255,.55);animation:fly 1s ease-out forwards}
+.fly.a{background:var(--away);color:#1f0b02;box-shadow:0 0 16px rgba(255,122,61,.55)}
+.fly.neg{background:#334155;color:#fff;box-shadow:none}
+.fly.l{--tx:-100%} .fly.r{--tx:0%}
+@keyframes fly{0%{opacity:0;transform:translate(var(--tx),-50%) scale(.5)}15%{opacity:1;transform:translate(var(--tx),-50%) scale(1.15)}
+  28%{transform:translate(var(--tx),-50%) scale(1)}40%{opacity:.2}52%{opacity:1}64%{opacity:.2}76%{opacity:1;transform:translate(var(--tx),-50%) scale(1)}
+  100%{opacity:0;transform:translate(var(--tx),-50%) scale(.6)}}
 @keyframes bump{0%{transform:scale(1.25);color:#fff;text-shadow:0 0 18px #fff}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.bump,.live i{animation:none}.bar i{transition:none}}
 
@@ -544,6 +554,29 @@ function regiaHomeHTML(idx){
 /* ================= render ================= */
 let mode = "loading", INDEX = null, lastEmail = "";
 let shown = "";
+const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function scoreFx(el, from, to, sd){
+  const d = to - from, side = el.closest(".side");
+  if(RM || !side || !d){ el.classList.add("bump"); return; }
+  const f = document.createElement("span");
+  /* l'etichetta va accanto al punteggio, dal lato verso il centro della scheda */
+  const toLeft = el.offsetLeft + el.offsetWidth/2 > side.clientWidth/2;
+  f.className = "fly " + sd + (toLeft ? " l" : " r") + (d<0 ? " neg" : ""); f.textContent = (d>0 ? "+" : "−") + Math.abs(d);
+  f.style.left = (toLeft ? el.offsetLeft + (el.offsetWidth - el.scrollWidth) - 10 : el.offsetLeft + el.scrollWidth + 10) + "px";
+  f.style.top = (el.offsetTop + el.offsetHeight/2) + "px";
+  side.appendChild(f); el.textContent = from;
+  setTimeout(()=>{
+    f.remove(); if(!el.isConnected || document.activeElement===el) return;
+    const t0 = performance.now(), D = 600;
+    const step = now=>{
+      if(!el.isConnected || document.activeElement===el) return;
+      const p = Math.min(1, (now-t0)/D);
+      el.textContent = Math.round(from + d*(1 - Math.pow(1-p, 3)));
+      if(p<1) requestAnimationFrame(step); else { el.textContent = to; el.classList.add("bump"); }
+    };
+    requestAnimationFrame(step);
+  }, 950);
+}
 function render(){
   const app = $("#app");
   if(mode===shown && app.contains(document.activeElement) && (document.activeElement.isContentEditable || /INPUT|SELECT/.test(document.activeElement.tagName))) return;
@@ -552,8 +585,13 @@ function render(){
   if(mode==="board" && S){
     app.innerHTML = boardHTML();
     if(prev) S.matches.forEach((m,i)=>["h","a"].forEach((sd,k)=>{
-      if(prev.matches[i] && prev.matches[i].s[k]!==m.s[k]) app.querySelectorAll(`[data-sc="${i}.${sd}"]`).forEach(e=>e.classList.add("bump"));
+      const o = prev.matches[i] && prev.matches[i].s[k];
+      if(prev.matches[i] && o!==m.s[k]) app.querySelectorAll(`[data-sc="${i}.${sd}"]`).forEach(e=>scoreFx(e, o, m.s[k], sd));
     }));
+    if(prev && prev.matches.length===S.matches.length){ const a = totals(prev), b = totals(S);
+      [".tot .h",".tot .a"].forEach((q,k)=>{ if(a[k]===b[k]) return; const e = app.querySelector(q); if(!e) return;
+        if(RM){ e.classList.add("bump"); return; }
+        e.textContent = a[k]; setTimeout(()=>{ if(e.isConnected){ e.textContent = b[k]; e.classList.add("bump"); } }, 1600); }); }
     prev = clone(S);
   }
   else if(mode==="list") app.innerHTML = `<main class="wrap"><div class="top"><div><div class="comp">Biliardo Seconda Passione</div><div class="sub">Risultati in diretta</div></div></div>${listHTML(INDEX,false)}<div class="foot">Biliardo Seconda Passione · Bologna</div></main>`;
