@@ -110,16 +110,16 @@ button.no{cursor:pointer}
 .foot{color:var(--dim);font-size:14px;text-align:center;letter-spacing:.04em}
 
 .bump{animation:bump .7s ease-out}
-/* punti nuovi: etichetta "+12" che compare sopra il punteggio, lampeggia due volte e "cade" nel totale, che poi conta fino al nuovo valore */
+/* punti nuovi: al posto del punteggio compare "+12", lampeggia due volte, poi il punteggio riappare e conta fino al nuovo valore */
 .side{position:relative}
-.fly{position:absolute;pointer-events:none;z-index:2;font-family:var(--fh);font-weight:700;font-size:22px;line-height:1;padding:3px 8px;border-radius:6px;
-  background:var(--home);color:#04121c;white-space:nowrap;box-shadow:0 0 16px rgba(60,200,255,.55);animation:fly 1s ease-out forwards}
+.fly{position:absolute;pointer-events:none;z-index:2;font-family:var(--fh);font-weight:700;font-size:26px;line-height:1;padding:4px 9px;border-radius:7px;
+  background:var(--home);color:#04121c;white-space:nowrap;box-shadow:0 0 16px rgba(60,200,255,.55);animation:fly 1.9s ease-in-out forwards}
+.sc.hold{color:transparent!important;text-shadow:none!important}
 .fly.a{background:var(--away);color:#1f0b02;box-shadow:0 0 16px rgba(255,122,61,.55)}
 .fly.neg{background:#334155;color:#fff;box-shadow:none}
-.fly.l{--tx:-100%} .fly.r{--tx:0%}
-@keyframes fly{0%{opacity:0;transform:translate(var(--tx),-50%) scale(.5)}15%{opacity:1;transform:translate(var(--tx),-50%) scale(1.15)}
-  28%{transform:translate(var(--tx),-50%) scale(1)}40%{opacity:.2}52%{opacity:1}64%{opacity:.2}76%{opacity:1;transform:translate(var(--tx),-50%) scale(1)}
-  100%{opacity:0;transform:translate(var(--tx),-50%) scale(.6)}}
+@keyframes fly{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}10%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}
+  18%{transform:translate(-50%,-50%) scale(1)}34%{opacity:.15}50%{opacity:1}66%{opacity:.15}82%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(.7)}}
 @keyframes bump{0%{transform:scale(1.25);color:#fff;text-shadow:0 0 18px #fff}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.bump,.live i{animation:none}.bar i{transition:none}}
 
@@ -249,7 +249,8 @@ const CLUB = {name:"Biliardo Seconda Passione", short:"Seconda Passione", city:"
 /* Formule di gara: per una nuova competizione a squadre basta aggiungerne una qui.
    pts = punti squadra per l'incontro vinto; step = cambio in staffetta; opts = specialità scelta all'acchito */
 const FORMULE = {
-  base: {nome:"Campionato Regionale a Squadre di Base", matches:[
+  /* base = ordine della 1ª giornata (22/10/2026): resta solo per le gare già create, non si sceglie più */
+  base: {nome:"Campionato Regionale a Squadre di Base", vecchia:true, matches:[
     {kind:"Singolo",  spec:"Italiana",   target:100, h:[""], a:[""], pts:1},
     {kind:"Singolo",  spec:"Filotto 60", target:600, h:[""], a:[""], pts:1},
     {kind:"Singolo",  spec:"Goriziana",  target:400, h:[""], a:[""], pts:1},
@@ -257,11 +258,20 @@ const FORMULE = {
     {kind:"Coppia",   spec:"Filotto 60", target:800, h:["",""], a:["",""], pts:1},
     {kind:"Staffetta",spec:"Italiana",   target:180, step:60, h:["","",""], a:["","",""], pts:2}
   ]},
+  /* dalla 2ª giornata: si gioca due incontri alla volta, gli ultimi due sono Coppia Italiana e Staffetta */
+  base2: {nome:"Campionato Regionale a Squadre di Base", matches:[
+    {kind:"Singolo",  spec:"Italiana",   target:100, h:[""], a:[""], pts:1},
+    {kind:"Singolo",  spec:"Filotto 60", target:600, h:[""], a:[""], pts:1},
+    {kind:"Singolo",  spec:"Goriziana",  target:400, h:[""], a:[""], pts:1},
+    {kind:"Coppia",   spec:"Filotto 60", target:800, h:["",""], a:["",""], pts:1},
+    {kind:"Coppia",   spec:"Italiana",   target:120, h:["",""], a:["",""], pts:1},
+    {kind:"Staffetta",spec:"Italiana",   target:180, step:60, h:["","",""], a:["","",""], pts:2}
+  ]},
   eccellenza: {nome:"Campionato Regionale a Squadre di Eccellenza", matches:[
     {kind:"Singolo",  spec:"Filotto 60", target:600, h:[""], a:[""], pts:1},
     {kind:"Singolo",  spec:"5 Birilli",  target:120, h:[""], a:[""], pts:1},
     {kind:"Singolo",  spec:"Goriziana",  target:500, h:[""], a:[""], pts:1},
-    {kind:"Doppio",   spec:"", target:0, opt:-1, opts:[{spec:"5 Birilli",target:130},{spec:"Goriziana",target:500},{spec:"Filotto 60",target:800}], h:["",""], a:["",""], pts:1},
+    {kind:"Coppia",   spec:"", target:0, opt:-1, opts:[{spec:"5 Birilli",target:130},{spec:"Goriziana",target:500},{spec:"Filotto 60",target:800}], h:["",""], a:["",""], pts:1},
     {kind:"Staffetta",spec:"5 Birilli",  target:250, step:50, h:["","","","",""], a:["","","","",""], pts:1}
   ]}
 };
@@ -291,7 +301,7 @@ function normalize(st){
     const m = Object.assign(clone(d), ms[i]||{});
     m.h = d.h.map((_,j)=>arr(m.h)[j]||""); m.a = d.a.map((_,j)=>arr(m.a)[j]||"");
     const s = arr(m.s); m.s = [+s[0]||0, +s[1]||0];
-    m.pts = d.pts; if(d.step) m.step = d.step;
+    m.kind = d.kind; m.pts = d.pts; if(d.step) m.step = d.step;
     if(d.opts){ m.opts = d.opts; m.opt = (typeof m.opt==="number") ? m.opt : -1; const o = m.opts[m.opt]; m.spec = o ? o.spec : ""; m.target = o ? o.target : 0; }
     else { m.spec = d.spec; m.target = d.target; }
     if(m.kind==="Staffetta"){ m.ph = d.h.map((_,j)=>+arr(m.ph)[j]||0); m.pa = d.h.map((_,j)=>+arr(m.pa)[j]||0); m.s = [m.ph.reduce((a,b)=>a+b,0), m.pa.reduce((a,b)=>a+b,0)]; }
@@ -535,7 +545,7 @@ function loginHTML(msg){
     <button type="submit">Entra</button>${msg?`<p class="err">${esc(msg)}</p>`:""}</form></main>`;
 }
 function regiaHomeHTML(idx){
-  const opts = Object.entries(FORMULE).map(([k,f])=>`<option value="${k}">${esc(f.nome)}</option>`).join("");
+  const opts = Object.entries(FORMULE).filter(([k,f])=>!f.vecchia).map(([k,f])=>`<option value="${k}">${esc(f.nome)}</option>`).join("");
   return `<main class="wrap"><div class="top"><div><div class="comp">Regia tabellone</div><div class="sub">${esc(session && session.email || "")}</div></div>
       <button class="ghost" id="logout">Esci</button></div>
     <form id="newgara" class="panel grid">
@@ -559,15 +569,16 @@ function scoreFx(el, from, to, sd){
   const d = to - from, side = el.closest(".side");
   if(RM || !side || !d){ el.classList.add("bump"); return; }
   const f = document.createElement("span");
-  /* l'etichetta va accanto al punteggio, dal lato verso il centro della scheda */
-  const toLeft = el.offsetLeft + el.offsetWidth/2 > side.clientWidth/2;
-  f.className = "fly " + sd + (toLeft ? " l" : " r") + (d<0 ? " neg" : ""); f.textContent = (d>0 ? "+" : "−") + Math.abs(d);
-  f.style.left = (toLeft ? el.offsetLeft + (el.offsetWidth - el.scrollWidth) - 10 : el.offsetLeft + el.scrollWidth + 10) + "px";
-  f.style.top = (el.offsetTop + el.offsetHeight/2) + "px";
-  side.appendChild(f); el.textContent = from;
+  /* l'etichetta sta esattamente al posto del numero (centrata sulle sue cifre), che intanto resta nascosto */
+  el.textContent = from;
+  const rg = document.createRange(); rg.selectNodeContents(el);
+  const tr = rg.getBoundingClientRect(), sr = side.getBoundingClientRect();
+  f.className = "fly " + sd + (d<0 ? " neg" : ""); f.textContent = (d>0 ? "+" : "−") + Math.abs(d);
+  f.style.left = (tr.left + tr.width/2 - sr.left) + "px"; f.style.top = (tr.top + tr.height/2 - sr.top) + "px";
+  side.appendChild(f); el.classList.add("hold");
   setTimeout(()=>{
-    f.remove(); if(!el.isConnected || document.activeElement===el) return;
-    const t0 = performance.now(), D = 600;
+    f.remove(); el.classList.remove("hold"); if(!el.isConnected || document.activeElement===el) return;
+    const t0 = performance.now(), D = 700;
     const step = now=>{
       if(!el.isConnected || document.activeElement===el) return;
       const p = Math.min(1, (now-t0)/D);
@@ -575,7 +586,7 @@ function scoreFx(el, from, to, sd){
       if(p<1) requestAnimationFrame(step); else { el.textContent = to; el.classList.add("bump"); }
     };
     requestAnimationFrame(step);
-  }, 950);
+  }, 1850);
 }
 function render(){
   const app = $("#app");
@@ -591,7 +602,7 @@ function render(){
     if(prev && prev.matches.length===S.matches.length){ const a = totals(prev), b = totals(S);
       [".tot .h",".tot .a"].forEach((q,k)=>{ if(a[k]===b[k]) return; const e = app.querySelector(q); if(!e) return;
         if(RM){ e.classList.add("bump"); return; }
-        e.textContent = a[k]; setTimeout(()=>{ if(e.isConnected){ e.textContent = b[k]; e.classList.add("bump"); } }, 1600); }); }
+        e.textContent = a[k]; setTimeout(()=>{ if(e.isConnected){ e.textContent = b[k]; e.classList.add("bump"); } }, 2600); }); }
     prev = clone(S);
   }
   else if(mode==="list") app.innerHTML = `<main class="wrap"><div class="top"><div><div class="comp">Biliardo Seconda Passione</div><div class="sub">Risultati in diretta</div></div></div>${listHTML(INDEX,false)}<div class="foot">Biliardo Seconda Passione · Bologna</div></main>`;
