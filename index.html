@@ -336,7 +336,7 @@ function setFrac(i, side, j, val){
 }
 
 /* ================= stato della pagina ================= */
-let PUB = null, prev = null, editor = false, flash = "", flashT = null, busy = false, armT = 0, online = true, user = null;
+let PUB = null, prev = null, editor = false, flash = "", flashT = null, busy = false, armT = 0, armP = 0, online = true, user = null;
 const hist = [];
 const DKEY = () => "b2p_live_bozza_" + GARA;
 function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DKEY())||"null"); if(d && PUB && d.base===PUB.rev && d.state) return normalize(d.state); }catch(e){} return null; }
@@ -410,7 +410,7 @@ async function publish(extra){
   const a = document.activeElement; if(a && a.isContentEditable) a.blur();
   await new Promise(r=>setTimeout(r, 40));
   const next = Object.assign(clone(S), extra||{}, {rev:(PUB?PUB.rev||0:0)+1, updatedAt:Date.now()});
-  if(next.stato==="programmata") next.stato = "live";
+  if(next.stato==="programmata" && !(extra && extra.stato==="programmata")) next.stato = "live";
   busy = true; flash = "Pubblicazione in corso…"; renderBar();
   try{
     const w = {["gare/"+GARA]: next, ["indice/"+GARA]: metaOf(next)}, hw = storiaWrite(next);
@@ -615,6 +615,7 @@ function renderBar(){
     <button data-r="disc" ${d&&!busy?"":"disabled"}>Scarta</button>
     <button class="more" data-r="more" title="Altri comandi" aria-label="Altri comandi" aria-expanded="${barOpen}">${barOpen ? "✕" : "⋯"}</button>
     <button class="x" data-r="end">${S.stato==="finita"?"Riapri gara":"Termina gara"}</button>
+    ${S.stato==="live" ? `<button data-r="prog" class="x ${Date.now()-armP<4000?"arm":""}" title="Torna a In programma: azzera punteggi e cronologia">${Date.now()-armP<4000?"Conferma: in programma":"Rimetti in programma"}</button>` : ""}
     <button data-r="reset" class="x ${Date.now()-armT<4000?"arm":""}">${Date.now()-armT<4000?"Conferma: azzera":"Azzera punteggi"}</button>
     <a class="rlink" href="?regia">Tutte le gare</a>
     <span class="tip">Link per il pubblico: <span class="url" id="puburl">${esc(pub || "?gara="+GARA)}</span> <button data-r="copy">Copia</button> · link fisso per tutte le dirette: <span class="url">${esc(pageURL("?live") || "?live")}</span><br>
@@ -778,6 +779,12 @@ $("#rbar").addEventListener("click", e=>{
   else if(r==="disc") discard();
   else if(r==="more"){ barOpen = !barOpen; renderBar(); }
   else if(r==="reset") resetScores();
+  else if(r==="prog"){
+    if(Date.now()-armP > 4000){ armP = Date.now(); renderBar(); setTimeout(renderBar, 4100); }
+    else { armP = 0; snapshot();
+      S.matches.forEach(m=>{ m.s=[0,0]; if(m.ph){ m.ph=m.ph.map(()=>0); m.pa=m.pa.map(()=>0); } if(m.opts){ m.opt=-1; m.spec=""; m.target=0; } });
+      S.inCorso = []; S.stato = "programmata"; publish({stato:"programmata"}); }
+  }
   else if(r==="end"){ snapshot(); S.stato = S.stato==="finita" ? "live" : "finita"; S.inCorso = S.stato==="finita" ? [] : S.inCorso; publish(); }
   else if(r==="copy"){ const t = $("#puburl").textContent;
     try{ navigator.clipboard.writeText(t).then(()=>setFlash("Link copiato"), ()=>selectUrl()); }catch(err){ selectUrl(); } }
