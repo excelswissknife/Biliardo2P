@@ -398,7 +398,7 @@ function normalize(st){
   st.inCorso = arr(st.inCorso).map(Number);
   if(f.torneo){
     st.gioco = st.gioco==="Coppia" ? "Coppia" : "Singolo";
-    if(!st.formato && st.spec && st.target) st.formato = st.spec + " ai " + st.target;   /* tornei creati prima dei set */
+    if(!st.formato && st.spec && st.target) st.formato = st.spec + " a " + st.target;   /* tornei creati prima dei set */
     st.formule = arr(st.formule).filter(Boolean).map(normFormula);
     if(!st.formule.length){ const p = parseFormato(st.formato);   /* tornei creati con la formula scritta a testo */
       st.formule = [normFormula(p.sets ? {nome:"Normale", n:p.sets.length, sets:p.sets.map(d=>d.opts ? {scelta:true} : d)} : FB_NUOVA, 0)]; }
@@ -407,7 +407,7 @@ function normalize(st){
     st.matches = arr(st.matches).filter(Boolean).map((m,i)=>{
       const id = Number.isInteger(m.id) ? m.id : i+1; mx = Math.max(mx, id);
       let fm = m.formato || "";
-      if(!fm && !m.fr && !m.ss && m.spec && m.target) fm = m.spec + " ai " + m.target;
+      if(!fm && !m.fr && !m.ss && m.spec && m.target) fm = m.spec + " a " + m.target;
       const fr = m.fr && findFormula(st, m.fr) ? findFormula(st, m.fr).nome : "";
       if(fr) fm = "";
       const defs = defsFor(st, {fr, formato:fm});
@@ -461,9 +461,11 @@ function champion(st=S){
   const pre = (fin.turno||"").trim().replace(/[\s·\-–]*finale$/i, "").trim(), cp = fin.kind==="Coppia";
   return {n: namesOf(fin, w), coppia: cp, label: (pre ? pre + " · " : "") + (cp ? "Vincitori" : "Vincitore")};
 }
-/* ---- torneo: formula della partita ("Italiana ai 100", "2 su 3 Italiana ai 100", "A ai x + B ai y + bella a scelta") ---- */
+/* ---- torneo: formula della partita ("Italiana a 100", "2 su 3 Italiana a 100", "A a x + B a y + bella a scelta") ---- */
 /* formule del torneo, compilate col modulo: {nome, n: 1|3|5, sets:[{spec, target} | {scelta:true}]} */
-const SPECIALITA = ["5 Birilli (Italiana)", "Goriziana semplici-doppi", 'Goriziana "Filotto 60"'];
+/* [nome in grafica, voce del menu]; i nomi lunghi usati fino al 24/10 si convertono da soli */
+const SPECIALITA = [["5 Birilli", "5 Birilli (Italiana)"], ["Goriziana", "Goriziana semplici-doppi"], ["Filotto 60", 'Goriziana "Filotto 60"']];
+const SPEC_BREVE = Object.fromEntries(SPECIALITA.map(([v, l])=>[l, v]));
 const FB_NUOVA = {nome:"Normale", n:1, sets:[{spec:"", target:0}]};
 function formulaDefs(f){
   const fixed = [];
@@ -478,7 +480,7 @@ function defsFor(st, m){
   return [{spec:"?", target:0}];
 }
 function normFormula(f, i){
-  const n = [1,3,5].includes(+f.n) ? +f.n : 1, sets = arr(f.sets).map(x=>x && x.scelta ? {scelta:true} : {spec:String((x||{}).spec||""), target:+(x||{}).target||0});
+  const n = [1,3,5].includes(+f.n) ? +f.n : 1, sets = arr(f.sets).map(x=>x && x.scelta ? {scelta:true} : {spec:(s=>SPEC_BREVE[s]||s)(String((x||{}).spec||"")), target:+(x||{}).target||0});
   while(sets.length<n) sets.push(Object.assign({}, sets.filter(x=>!x.scelta).pop() || {spec:"", target:0}));
   return {nome:String(f.nome||"").trim() || (i ? "Formula " + (i+1) : "Normale"), n, sets:sets.slice(0, n)};
 }
@@ -489,10 +491,10 @@ function fbHTML(f, idx, named){
   for(let k=0; k<n; k++){
     let x = f.sets[k] || Object.assign({}, f.sets.filter(y=>!y.scelta).pop() || {spec:"", target:0});
     const last = n>1 && k===n-1; if(x.scelta && !last) x = {spec:"", target:0};
-    const inList = SPECIALITA.includes(x.spec), altro = !x.scelta && (!!x.altro || (!!x.spec && !inList)), sc = !!x.scelta;
+    const inList = SPECIALITA.some(([v])=>v===x.spec), altro = !x.scelta && (!!x.altro || (!!x.spec && !inList)), sc = !!x.scelta;
     const r0 = f.sets[0] || {}, copy = k>0 && !sc && x.spec===r0.spec && +x.target===+r0.target && !!x.altro===!!r0.altro;
     rows += `<div class="fbr${sc ? " fsc" : ""}" data-k="${k}"${copy ? ` data-copy="1"` : ""}><span class="fbl">${n>1 ? (k+1) + "° set" : "Set"}</span>
-      <select data-f="spec" aria-label="Specialità del ${k+1}° set">${opt("", "— specialità —", !x.spec && !sc)}${SPECIALITA.map(v=>opt(v, v, x.spec===v)).join("")}${opt("__altro", "Altro…", altro)}${last ? opt("__scelta", "A scelta all'acchito", sc) : ""}</select>
+      <select data-f="spec" aria-label="Specialità del ${k+1}° set">${opt("", "— specialità —", !x.spec && !sc)}${SPECIALITA.map(([v, l])=>opt(v, l, x.spec===v)).join("")}${opt("__altro", "Altro…", altro)}${last ? opt("__scelta", "A scelta all'acchito", sc) : ""}</select>
       <input data-f="pt" type="number" inputmode="numeric" min="1" placeholder="punti" aria-label="Punti del ${k+1}° set" value="${sc || !x.target ? "" : x.target}"${sc ? " hidden" : ""}>
       <input data-f="altro" placeholder="Nome della specialità" value="${altro ? esc(x.spec) : ""}"${altro ? "" : " hidden"}></div>`;
   }
@@ -535,7 +537,7 @@ document.addEventListener("change", e=>{
 });
 function parseSet(t){ const mm = String(t).trim().match(/^(.+?)\s+(?:ai?\s+)?(\d+)(?:\s*punti)?$/i); return mm ? {spec:mm[1].trim(), target:+mm[2]} : null; }
 function parseFormato(str){
-  let t = String(str||"").trim().replace(/\s+/g, " "); if(!t) return {err:"manca la formula della partita (es. Italiana ai 100)"};
+  let t = String(str||"").trim().replace(/\s+/g, " "); if(!t) return {err:"manca la formula della partita (es. Italiana a 100)"};
   t = t.replace(/^al meglio de(?:i|lle)\s+(?:3|tre)\s*(?:set|partite)?\s*:?\s*/i, "2 su 3 ").replace(/^al meglio de(?:i|lle)\s+(?:5|cinque)\s*(?:set|partite)?\s*:?\s*/i, "3 su 5 ")
        .replace(/^(\d)\s*\/\s*(\d)\s+/, "$1 su $2 ").replace(/^due su tre\s+/i, "2 su 3 ").replace(/^tre su cinque\s+/i, "3 su 5 ");
   const bo = t.match(/^(\d+)\s*su\s*(\d+)\s*:?\s*(.+)$/i); let parts;
@@ -552,9 +554,9 @@ function parseFormato(str){
     else if(!c || /^(a\s+)?scelta$/i.test(c)){
       if(fixed.length===1) sets.push(Object.assign({}, fixed[0]));
       else if(fixed.length>1) sets.push({opts:fixed.map(x=>Object.assign({}, x))});
-      else return {err:`"${p}": indica tra quali specialità (es. bella: 5 Birilli ai 120 / Filotto 60 ai 600)`};
+      else return {err:`"${p}": indica tra quali specialità (es. bella: 5 Birilli a 120 / Filotto 60 a 600)`};
     }
-    else { const x = parseSet(c); if(!x) return {err:`specialità non chiara: "${p}" (es. Italiana ai 100)`}; sets.push(x); }
+    else { const x = parseSet(c); if(!x) return {err:`specialità non chiara: "${p}" (es. Italiana a 100)`}; sets.push(x); }
   }
   return {sets};
 }
@@ -675,7 +677,9 @@ function storiaWrite(next){
   if(next.matches.every(m=>!hasPts(m))) return (PUB && PUB.matches.some(hasPts)) ? {["storia/"+GARA]: null} : {};
   const ch = {}, pk = new Map(PUB ? PUB.matches.map((m,i)=>[mkey(m,i), m]) : []);
   next.matches.forEach((m,i)=>{ const k = mkey(m,i), o = pk.get(k), multi = m.defs && m.defs.length>1;
-    if(!o || o.s[0]!==m.s[0] || o.s[1]!==m.s[1] || o.sk!==m.sk) ch[k] = multi ? [m.s[0], m.s[1], m.sk] : [m.s[0], m.s[1]]; });
+    /* incontri a set: si registra ogni set cambiato (anche quello appena chiuso), chiave m<id>s<set> = [casa, ospite, set] */
+    if(multi){ m.ss.forEach((x,j)=>{ const y = o && o.ss && o.ss[j]; if(y ? (y[0]!==x[0] || y[1]!==x[1]) : (x[0] || x[1])) ch[k+"s"+j] = [x[0], x[1], j]; }); return; }
+    if(!o || o.s[0]!==m.s[0] || o.s[1]!==m.s[1]) ch[k] = [m.s[0], m.s[1]]; });
   return Object.keys(ch).length ? {["storia/"+GARA+"/r"+next.rev]: {t:next.updatedAt, m:ch}} : {};
 }
 async function publish(extra){
@@ -742,8 +746,8 @@ function setsHTML(m, i){
   return `<div class="sets" style="grid-template-columns:repeat(${Math.min(n,3)},minmax(0,1fr))">` + m.defs.map((d,k)=>{
     const x = m.ss[k], w = setWin(m,k), skip = !(x[0]||x[1]) && m.play<0;
     const pick = d.opts && editor ? ` data-bo="${i}.${k}" title="Clic: specialità scelta all'acchito"` : "";
-    const spec = d.opts && !d.target ? `<span class="o${pick?" pick":""}"${pick} title="${esc(d.opts.map(o=>o.spec+" ai "+o.target).join(" / "))}">a scelta</span>`
-                                     : `<span class="o${pick?" pick":""}"${pick}>${esc(d.spec)} <i>ai ${d.target}</i></span>`;
+    const spec = d.opts && !d.target ? `<span class="o${pick?" pick":""}"${pick} title="${esc(d.opts.map(o=>o.spec+" a "+o.target).join(" / "))}">a scelta</span>`
+                                     : `<span class="o${pick?" pick":""}"${pick}>${esc(d.spec)} <i>a ${d.target}</i></span>`;
     const val = sd => { const v = x[sd==="h"?0:1];
       return editor ? `<b contenteditable="plaintext-only" spellcheck="false" inputmode="numeric" data-ss="${i}.${k}.${sd}">${v}</b>` : `<b>${v}</b>`; };
     return `<div class="set ${w ? "w"+w : ""} ${k===m.play ? "cur" : ""} ${skip ? "skip" : ""}"><em>${setLabel(k,n)}</em>${spec}<span class="r">${skip && !editor ? `<span class="ng">non giocato</span>` : val("h") + "<u>–</u>" + val("a")}</span></div>`;
@@ -754,11 +758,11 @@ function specHTML(m, i){
     const n = m.defs.length, d = m.defs[m.sk], lab = n>1 ? `<span class="sl">${setLabel(m.sk,n)}</span>` : "";
     const pick = editor && d.opts ? ` data-bo="${i}.${m.sk}" title="Clic: specialità scelta all'acchito"` : "";
     if(d.opts && !d.target) return `${lab}<span class="sp${pick?" pick":""}"${pick}>Specialità all'acchito</span>`;
-    return `${lab}<span class="sp${pick?" pick":""}"${pick}>${esc(d.spec)}<b>ai ${d.target}</b></span>`;
+    return `${lab}<span class="sp${pick?" pick":""}"${pick}>${esc(d.spec)}<b>a ${d.target}</b></span>`;
   }
   const click = editor && m.opts ? ` data-opt="${i}" title="Clic: cambia specialità"` : "";
   if(m.opts && m.opt<0) return `<span class="sp${click?" pick":""}"${click}>Specialità all'acchito</span>`;
-  return `<span class="sp${click?" pick":""}"${click}>${esc(m.spec)}<b>ai ${m.target}</b></span>`;
+  return `<span class="sp${click?" pick":""}"${click}>${esc(m.spec)}<b>a ${m.target}</b></span>`;
 }
 const TREND_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>`;
 function matchHTML(m, i){
@@ -1004,7 +1008,7 @@ function setsTableHTML(m){
   return `<table class="st"><thead><tr><th>Set ${m.sw[0]}–${m.sw[1]}</th><th class="spc"></th><th class="h">${esc(sideName(m,"h"))}</th><th class="a">${esc(sideName(m,"a"))}</th></tr></thead><tbody>` +
     m.defs.map((d,k)=>{
       const x = m.ss[k], w = setWin(m,k), skip = !(x[0]||x[1]) && m.play<0;
-      const sp = d.opts && !d.target ? "a scelta all'acchito" : `${esc(d.spec)} <b>ai ${d.target}</b>`;
+      const sp = d.opts && !d.target ? "a scelta all'acchito" : `${esc(d.spec)} <b>a ${d.target}</b>`;
       return `<tr class="${k===m.play ? "cur" : ""}"><td>${setLabel(k,n)}</td><td class="spc">${sp}</td>` +
         (skip ? `<td colspan="2" class="ng">non giocato</td>` : `<td class="${w==="h" ? "w" : ""}">${x[0]}</td><td class="${w==="a" ? "w" : ""}">${x[1]}</td>`) + `</tr>`;
     }).join("") + `</tbody></table>` + `<h4>Andamento</h4>`;
@@ -1012,22 +1016,32 @@ function setsTableHTML(m){
 function drawTrend(){
   if(trI<0 || !S || !S.matches[trI]) return;
   const m = S.matches[trI], box = $("#trm .bx"), multi = !!(m.defs && m.defs.length>1);
-  const head = multi ? `${trI+1} · ${esc(m.turno||"")}` : `${trI+1} · ${esc(isTorneo() ? (m.turno||"") : m.kind)} · ${esc(m.spec||"")}${m.target ? ` <b>ai ${m.target}</b>` : ""}`;
+  const head = multi ? `${trI+1} · ${esc(m.turno||"")}` : `${trI+1} · ${esc(isTorneo() ? (m.turno||"") : m.kind)} · ${esc(m.spec||"")}${m.target ? ` <b>a ${m.target}</b>` : ""}`;
   let html = `<button class="cls" data-cl aria-label="Chiudi">✕</button><h3>${head}</h3>` + (multi ? setsTableHTML(m) : "");
   if(trData===null){ box.innerHTML = html + `<p class="hint">Caricamento…</p>`; return; }
   if(trData==="err"){ box.innerHTML = html + `<p class="hint">Cronologia non disponibile.</p>`; return; }
   const ent = Object.values(trData).filter(e=>e && e.t && e.m).sort((a,b)=>a.t-b.t), key = mkey(m, trI), series = {};
   ent.forEach((e,ix)=>{
-    const v = e.m[key]; if(!v) return; const a = arr(v), k = +a[2]||0, ps = series[k] || (series[k] = []);
-    if(!ps.length) ps.push({t: ix>0 ? ent[ix-1].t : e.t, h:0, a:0});
-    ps.push({t:e.t, h:+a[0]||0, a:+a[1]||0});
+    const vals = [];
+    if(e.m[key]){ const a = arr(e.m[key]); vals.push([+a[0]||0, +a[1]||0, +a[2]||0]); }
+    for(let j=0; j<5; j++){ const v = e.m[key+"s"+j]; if(v){ const a = arr(v); vals.push([+a[0]||0, +a[1]||0, j]); } }
+    vals.forEach(([h,a,k])=>{ const ps = series[k] || (series[k] = []);
+      if(!ps.length) ps.push({t: ix>0 ? ent[ix-1].t : e.t, h:0, a:0});
+      const last = ps[ps.length-1];
+      if(ps.length>1 && last.t===e.t){ last.h = h; last.a = a; } else if(ps.length>1 || h || a) ps.push({t:e.t, h, a});
+    });
+  });
+  /* gare pubblicate prima del 24/10: mancava il tiro che chiudeva un set; si ricostruisce dal punteggio finale del set */
+  if(multi) Object.keys(series).map(Number).forEach(k=>{
+    const ps = series[k], fin = m.ss[k], last = ps[ps.length-1];
+    if(fin && (last.h!==fin[0] || last.a!==fin[1])){ const nx = series[k+1] && series[k+1].find(p=>p.t>last.t); ps.push({t: nx ? nx.t : last.t, h:fin[0], a:fin[1]}); }
   });
   const ks = Object.keys(series).map(Number).sort((a,b)=>a-b).filter(k=>series[k].length>1);
   if(!ks.length){ box.innerHTML = html + `<p class="hint">${multi ? "Il grafico" : "La cronologia"} si riempie a ogni pubblicazione dei punteggi: per ora non ci sono dati.</p>`; return; }
   html += `<div class="lg"><span class="h">● ${esc(sideName(m,"h"))}</span><span class="a">● ${esc(sideName(m,"a"))}</span></div>`;
   ks.forEach(k=>{
     const d = multi ? (m.defs[k] || {}) : m;
-    if(multi) html += `<h4>${setLabel(k, m.defs.length)} · ${esc(d.spec||"")}${d.target ? ` <b>ai ${d.target}</b>` : ""}</h4>`;
+    if(multi) html += `<h4>${setLabel(k, m.defs.length)} · ${esc(d.spec||"")}${d.target ? ` <b>a ${d.target}</b>` : ""}</h4>`;
     html += chartHTML(series[k], d.target||0, m);
   });
   box.innerHTML = html + `<p class="hint">Un punto a ogni pubblicazione della regia.</p>`;
