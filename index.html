@@ -177,6 +177,60 @@ body.ed [data-logo]{cursor:pointer}
 #rbar .url{user-select:all;color:#fff;word-break:break-all}
 #rbar .tip button{padding:2px 8px;font-size:12px;margin-left:4px}
 #rbar .more{display:none}
+/* torneo a eliminazione diretta */
+.turno{font-family:var(--fh);font-weight:600;font-size:17px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:10px 0 -2px;display:flex;align-items:center;gap:10px}
+.turno::after{content:"";flex:1;height:1px;background:rgba(246,200,83,.3)}
+.chip{max-width:62%;overflow:hidden;text-overflow:ellipsis}
+.champ{display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 12px;border-radius:12px;border:1px solid rgba(246,200,83,.5);text-align:center;
+  background:radial-gradient(ellipse at 50% 0%,rgba(246,200,83,.22),var(--panel) 70%)}
+.champ .k{font-size:14px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.champ .n{font-family:var(--fh);font-weight:700;font-size:clamp(24px,7vw,34px);text-transform:uppercase;line-height:1.1;text-wrap:balance}
+.tinfo{color:var(--mute);font-size:15px;font-weight:600;text-align:center;letter-spacing:.04em}
+.tinfo b{color:var(--ink)}
+.incbtn{align-self:center;font:700 15px system-ui,"Segoe UI",sans-serif;padding:10px 18px;border-radius:8px;border:1px dashed #4b6584;background:transparent;color:#cfe0f5;cursor:pointer}
+.gvs.t{display:block;text-align:center;color:var(--mute);font-size:16px}
+.gvs.t b{font-size:17px;color:var(--gold);font-family:var(--fc)}
+.fs{display:contents}
+/* set: conteggio in testata, etichetta del set mostrato, caselle dei set sotto l'incontro */
+.setc{margin-left:auto;font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--mute);white-space:nowrap}
+.setc b{color:var(--ink);font-size:16px;letter-spacing:.04em}
+.setc+.chip,.setc+.trend{margin-left:0}
+.sl{font-size:12px;font-weight:800;letter-spacing:.12em;color:#1a1205;background:rgba(246,200,83,.85);padding:1px 6px;border-radius:3px}
+.sets{display:grid;gap:6px}
+.set{display:flex;flex-direction:column;gap:2px;padding:4px 7px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid var(--line);
+  font-size:13px;line-height:1.2;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;min-width:0}
+.set em{font-style:normal;font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--dim)}
+.set .o i{font-style:normal;color:var(--gold)}
+.set .r{font-family:var(--fh);font-size:20px;color:var(--ink);font-variant-numeric:tabular-nums;display:flex;gap:6px;align-items:baseline;text-transform:none}
+.set .r u{text-decoration:none;color:var(--dim)}
+.set .r b{font-weight:700;min-width:1ch}
+.set.cur{border-color:rgba(246,200,83,.6);background:rgba(246,200,83,.06)}
+.set.cur em{color:var(--gold)}
+.set.wh{box-shadow:inset 3px 0 0 var(--home)} .set.wa{box-shadow:inset 3px 0 0 var(--away)}
+.set.wh .r b:first-child,.set.wa .r b:last-of-type{color:var(--gold)}
+.set.skip{opacity:.45}
+.set .ng{font-family:var(--fc);font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--mute);text-transform:uppercase}
+@media (max-width:520px){ .set{font-size:11.5px;padding:4px 6px} .set em{font-size:11px} .set .r{font-size:17px;gap:4px} }
+.set .pick,.sp.pick{cursor:pointer;border-bottom:1px dashed var(--gold)}
+.set b[data-cur]:empty::before{content:attr(data-cur);opacity:.3}
+#trm h4{margin:4px 0 -4px;font-family:var(--fh);font-weight:600;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+#trm h4 b{color:var(--gold);font-weight:600}
+#edm{position:fixed;inset:0;z-index:30;background:rgba(3,7,14,.78);display:grid;place-items:center;padding:12px}
+#edm .bx{width:min(640px,100%);max-height:calc(100dvh - 24px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px 16px;
+  display:flex;flex-direction:column;gap:10px;font-family:system-ui,"Segoe UI",sans-serif;font-size:14px}
+#edm h3{margin:0;font-family:var(--fh);font-weight:600;font-size:18px;letter-spacing:.05em;text-transform:uppercase}
+#edm .row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:end}
+#edm label{display:flex;flex-direction:column;gap:3px;color:var(--mute);font-weight:600}
+#edm input,#edm select,#edm textarea{font:inherit;padding:8px 10px;border-radius:6px;border:1px solid #3b4a63;background:#1b2536;color:var(--ink);min-width:0}
+#edm .row label:last-child{flex:1 1 260px}
+#edm textarea{font:15px/1.45 ui-monospace,"Cascadia Mono",Consolas,monospace;min-height:260px;resize:vertical;width:100%;box-sizing:border-box}
+#edm .hint{color:var(--mute);margin:0;line-height:1.45}
+#edm .hint code{color:#cfe0f5}
+#edm .err{margin:0}
+#edm .btns{display:flex;gap:10px;justify-content:flex-end}
+#edm .btns button{font:inherit;font-weight:700;padding:9px 16px;border-radius:6px;border:1px solid var(--ok);background:var(--ok);color:#05220f;cursor:pointer}
+#edm .btns button.arm{background:#7f1d1d;border-color:#ef4444;color:#fff}
+#edm .btns .ghost{background:transparent;border-color:#4b5563;color:var(--ink)}
 /* inserimento punti: il campo si apre vuoto (totale in grigio), i numeri si sommano; pulsanti Aggiungi / Togli / Totale */
 .sc[data-cur]:empty::before,.fp[data-cur]:empty::before{content:attr(data-cur);opacity:.3}
 #kp{position:absolute;z-index:20;display:none;gap:6px;padding:6px;border-radius:10px;background:#1b2536;border:1px solid #3b4a63;box-shadow:0 8px 24px rgba(0,0,0,.55)}
@@ -225,6 +279,20 @@ body.ed [data-logo]{cursor:pointer}
 <div id="app"></div>
 <div id="rbar"></div>
 <div id="kp" aria-hidden="true"><button data-k="add" class="add">+ Aggiungi</button><button data-k="sub">− Togli</button><button data-k="set">= Totale</button></div>
+<div id="edm" hidden><div class="bx" role="dialog" aria-modal="true" aria-label="Incontri del torneo">
+  <h3>Incontri del torneo</h3>
+  <div class="row"><label>Gioco<select id="ed-g"><option value="Singolo">Singoli</option><option value="Coppia">Coppie</option></select></label>
+    <label>Partita (per tutti gli incontri)<input id="ed-p" placeholder="es. Italiana ai 100 · 2 su 3 Italiana ai 100"></label></div>
+  <textarea id="ed-x" spellcheck="false" autocapitalize="characters" placeholder="# Batteria · Quarti di finale&#10;Galli - Rossi&#10;Tamburini - Bianchi&#10;# Batteria · Semifinale&#10;? - ?&#10;# Finale&#10;? - ? | 2 su 3 Goriziana ai 400"></textarea>
+  <p class="hint">Una riga <code># Nome del turno</code>, poi un incontro per riga: <code>Galli - Rossi</code> (coppie: <code>Galli / Tamburini - Rossi / Bianchi</code>).
+    Nomi ancora da decidere: <code>? - ?</code>. Partita diversa per un incontro: in fondo <code>| 2 su 3 Goriziana ai 400</code>.<br>
+    Partita: set secco <code>Italiana ai 100</code> · al meglio dei tre <code>2 su 3 Italiana ai 100</code> · set misti
+    <code>5 Birilli ai 120 + Filotto 60 ai 600 + bella a scelta</code> (la bella si sceglie all'acchito tra le specialità dei set;
+    oppure <code>bella: 5 Birilli ai 120 / Filotto 60 ai 600</code>).
+    Gli incontri compaiono nell'ordine scritto; i punteggi già inseriti restano se l'incontro resta nello stesso turno e posizione.</p>
+  <p class="err" id="ed-m"></p>
+  <div class="btns"><button class="ghost" data-e="no">Annulla</button><button data-e="ok">Applica</button></div>
+</div></div>
 <div id="trm" hidden><div class="bx" role="dialog" aria-modal="true" aria-label="Andamento dell'incontro"></div></div>
 <input id="logofile" type="file" accept="image/*" hidden>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -267,6 +335,8 @@ const FORMULE = {
     {kind:"Coppia",   spec:"Italiana",   target:120, h:["",""], a:["",""], pts:1},
     {kind:"Staffetta",spec:"Italiana",   target:180, step:60, h:["","",""], a:["","",""], pts:2}
   ]},
+  /* torneo: gli incontri non sono fissi, li scrive la regia (finestra "Incontri del torneo") */
+  torneo: {nome:"Torneo a eliminazione diretta", torneo:true, matches:[]},
   eccellenza: {nome:"Campionato Regionale a Squadre di Eccellenza", matches:[
     {kind:"Singolo",  spec:"Filotto 60", target:600, h:[""], a:[""], pts:1},
     {kind:"Singolo",  spec:"5 Birilli",  target:120, h:[""], a:[""], pts:1},
@@ -296,6 +366,28 @@ function normalize(st){
   const f = FORMULE[st.formula] || FORMULE.base;
   st.home = Object.assign({name:"",city:""}, st.home); st.away = Object.assign({name:"",city:"",badge:""}, st.away);
   st.inCorso = arr(st.inCorso).map(Number);
+  if(f.torneo){
+    st.gioco = st.gioco==="Coppia" ? "Coppia" : "Singolo";
+    if(!st.formato && st.spec && st.target) st.formato = st.spec + " ai " + st.target;   /* tornei creati prima dei set */
+    st.formato = st.formato || ""; delete st.spec; delete st.target;
+    const n = st.gioco==="Coppia" ? 2 : 1; let mx = 0;
+    st.matches = arr(st.matches).filter(Boolean).map((m,i)=>{
+      const id = Number.isInteger(m.id) ? m.id : i+1; mx = Math.max(mx, id);
+      let fm = m.formato || "";
+      if(!fm && !m.ss && m.spec && m.target && (m.spec + " ai " + m.target)!==st.formato) fm = m.spec + " ai " + m.target;
+      const defs = parseFormato(fm || st.formato).sets || [{spec:"?", target:0}];
+      const ssIn = arr(m.ss).map(arr); if(!m.ss && m.s) ssIn[0] = arr(m.s);
+      const chIn = arr(m.ch);
+      const x = {id, turno:m.turno||"", kind:st.gioco, formato:fm, pts:1,
+        h:Array.from({length:n},(_,j)=>arr(m.h)[j]||""), a:Array.from({length:n},(_,j)=>arr(m.a)[j]||""),
+        ss:defs.map((_,k)=>[+(ssIn[k]||[])[0]||0, +(ssIn[k]||[])[1]||0]), ch:defs.map((_,k)=>Number.isInteger(chIn[k]) ? chIn[k] : -1)};
+      x.defs = defs.map((d,k)=>d.opts ? Object.assign({opts:d.opts}, d.opts[x.ch[k]] || {spec:"", target:0}) : d);
+      deriveSets(x); return x;
+    });
+    st.nextId = Math.max(+st.nextId||1, mx+1);
+    st.inCorso = st.inCorso.filter(i=>i<st.matches.length);
+    return st;
+  }
   const ms = arr(st.matches);
   st.matches = f.matches.map((d,i)=>{
     const m = Object.assign(clone(d), ms[i]||{});
@@ -311,6 +403,9 @@ function normalize(st){
 }
 function newState(o){
   const f = FORMULE[o.formula];
+  if(f.torneo) return normalize({v:1, formula:o.formula, rev:0, updatedAt:0, stato:"programmata", data:o.data,
+    title:o.titolo, subtitle:[o.fase, o.luogo].filter(Boolean).join(" · "), gioco:o.gioco, formato:o.formato,
+    home:clone(CLUB), away:{name:"",city:"",badge:""}, inCorso:[], matches:[], nextId:1});
   const away = {name:o.ospite, city:o.citta, badge:(o.ospite||"?").trim().charAt(0).toUpperCase()};
   return normalize({v:1, formula:o.formula, rev:0, updatedAt:0, stato:"programmata", data:o.data,
     title:f.nome, subtitle:[o.giornata, o.luogo].filter(Boolean).join(" · "),
@@ -319,7 +414,58 @@ function newState(o){
 
 /* ================= logica di gara ================= */
 let S = null;
+const isTorneo = (st=S) => !!(st && (FORMULE[st.formula]||{}).torneo);
+/* chiave stabile di un incontro (cronologia, animazioni): nei tornei l'id, nelle gare a squadre la posizione */
+const mkey = (m, i) => "m" + (m && m.id!=null ? m.id : i);
+const namesOf = (m, sd) => m[sd].filter(Boolean).join(" / ");
+const sideName = (m, sd) => isTorneo() ? (namesOf(m, sd) || "—") : teamShort(sd);
+/* vincitore: l'ultimo incontro di un turno "Finale" (anche "Batteria · Finale": allora è il vincitore della batteria) */
+function champion(st=S){
+  const fin = st.matches.filter(m=>/(^|[\s·\-–])finale$/i.test((m.turno||"").trim())).pop(); if(!fin) return null;
+  const w = winner(fin); if(!w) return null;
+  const pre = (fin.turno||"").trim().replace(/[\s·\-–]*finale$/i, "").trim(), cp = fin.kind==="Coppia";
+  return {n: namesOf(fin, w), coppia: cp, label: (pre ? pre + " · " : "") + (cp ? "Vincitori" : "Vincitore")};
+}
+/* ---- torneo: formula della partita ("Italiana ai 100", "2 su 3 Italiana ai 100", "A ai x + B ai y + bella a scelta") ---- */
+function parseSet(t){ const mm = String(t).trim().match(/^(.+?)\s+(?:ai\s+)?(\d+)$/i); return mm ? {spec:mm[1].trim(), target:+mm[2]} : null; }
+function parseFormato(str){
+  const t = String(str||"").trim().replace(/\s+/g, " "); if(!t) return {err:"manca la formula della partita (es. Italiana ai 100)"};
+  const bo = t.match(/^(\d+)\s*su\s*(\d+)\s*:?\s*(.+)$/i); let parts;
+  if(bo){ const n = +bo[2]; if(n%2===0 || +bo[1]!==(n+1)/2) return {err:`"${bo[1]} su ${bo[2]}" non torna: si scrive 2 su 3 oppure 3 su 5`}; parts = Array(n).fill(bo[3]); }
+  else parts = t.split("+").map(x=>x.trim()).filter(Boolean);
+  if(parts.length%2===0) return {err:"il numero di set dev'essere dispari (1, 3 o 5)"};
+  const clean = p => p.replace(/^(bella|spareggio|set\s*\d*|\d+°?\s*set)\s*:?\s*/i, "").trim();
+  const fixed = [];
+  parts.forEach(p=>{ const c = clean(p); if(!/\/|scelta/i.test(c)){ const x = parseSet(c); if(x && !fixed.some(f=>f.spec===x.spec && f.target===x.target)) fixed.push(x); } });
+  const sets = [];
+  for(const p of parts){
+    const c = clean(p);
+    if(/\//.test(c)){ const o = c.replace(/^a\s+scelta\s*:?\s*/i, "").split("/").map(parseSet); if(o.some(x=>!x)) return {err:`specialità non chiara: "${p}"`}; sets.push({opts:o}); }
+    else if(!c || /^(a\s+)?scelta$/i.test(c)){
+      if(fixed.length===1) sets.push(Object.assign({}, fixed[0]));
+      else if(fixed.length>1) sets.push({opts:fixed.map(x=>Object.assign({}, x))});
+      else return {err:`"${p}": indica tra quali specialità (es. bella: 5 Birilli ai 120 / Filotto 60 ai 600)`};
+    }
+    else { const x = parseSet(c); if(!x) return {err:`specialità non chiara: "${p}" (es. Italiana ai 100)`}; sets.push(x); }
+  }
+  return {sets};
+}
+const setLabel = (k, n) => (k+1) + "° set";   /* in grafica sempre "3° set", mai "Bella" (la parola resta valida solo nella formula) */
+const hasPts = m => m.ss ? m.ss.some(x=>x[0]||x[1]) : !!(m.s[0]||m.s[1]);
+function setWin(m, k){ const d = m.defs[k], x = m.ss[k]; if(!d || !d.target) return null;
+  if(x[0]>=d.target && x[0]>x[1]) return "h"; if(x[1]>=d.target && x[1]>x[0]) return "a"; return null; }
+/* set da giocare (play, -1 se l'incontro è deciso), set mostrato (sk: quello in gioco, o l'ultimo giocato a incontro concluso), punteggio grande (s) */
+function deriveSets(m){
+  const n = m.defs.length, need = (n+1)/2; let wh = 0, wa = 0, play = -1;
+  for(let k=0; k<n; k++){ if(wh>=need || wa>=need) break; const w = setWin(m,k); if(w==="h") wh++; else if(w==="a") wa++; else { play = k; break; } }
+  m.sw = [wh, wa]; m.mw = wh>=need ? "h" : wa>=need ? "a" : null; m.play = m.mw ? -1 : play;
+  let last = 0; m.ss.forEach((x,k)=>{ if(x[0]||x[1]) last = k; });
+  m.sk = m.play<0 ? last : m.play;
+  const d = m.defs[m.sk]; m.spec = d.spec||""; m.target = d.target||0; m.s = m.ss[m.sk].slice();
+}
+const editSet = m => m.play>=0 ? m.play : m.sk;
 function winner(m){
+  if(m.defs) return m.mw;
   if(!m.target) return null;
   if(m.s[0]>=m.target && m.s[0]>m.s[1]) return "h";
   if(m.s[1]>=m.target && m.s[1]>m.s[0]) return "a";
@@ -329,6 +475,7 @@ function totals(st){ const t=[0,0]; (st||S).matches.forEach(m=>{ const w=winner(
 const relayIdx = m => Math.min(m.h.length-1, Math.floor(Math.max(m.s[0],m.s[1]) / m.step));
 function setScore(i, side, val){
   const m = S.matches[i], k = side==="h"?0:1; val = Math.max(0, Math.round(+val||0));
+  if(m.defs){ const e = editSet(m); if(m.ss[e][k]===val) return; snapshot(); m.ss[e][k] = val; deriveSets(m); commit(); return; }
   if(m.s[k]===val) return;
   snapshot();
   if(m.kind==="Staffetta"){
@@ -338,6 +485,10 @@ function setScore(i, side, val){
     m.s[k] = a.reduce((x,y)=>x+y,0);
   } else m.s[k] = val;
   commit();
+}
+function setSetScore(i, k, side, val){
+  const m = S.matches[i], j = side==="h"?0:1; val = Math.max(0, Math.round(+val||0));
+  if(m.ss[k][j]===val) return; snapshot(); m.ss[k][j] = val; deriveSets(m); commit();
 }
 function setFrac(i, side, j, val){
   const m = S.matches[i], a = side==="h" ? m.ph : m.pa; val = Math.max(0, Math.round(+val||0));
@@ -404,15 +555,19 @@ async function dbWrite(obj){
   if(!r.ok) throw {code:"http " + r.status};
 }
 function metaOf(st){
+  if(isTorneo(st)){ const c = champion(st);
+    return {titolo:st.title, sottotitolo:st.subtitle||"", data:st.data||"", formula:st.formula, stato:st.stato, tipo:"torneo",
+      fatti:st.matches.filter(m=>winner(m)).length, totale:st.matches.length, vincitore:c ? c.n : "", aggiornato:st.updatedAt||0}; }
   const t = totals(st);
   return {titolo:st.title, sottotitolo:st.subtitle||"", data:st.data||"", formula:st.formula, stato:st.stato,
     casa:st.home.name, ospite:st.away.name, punti:t, aggiornato:st.updatedAt||0};
 }
 /* cronologia: a ogni PUBBLICA, in storia/<gara>/r<rev>, i punteggi degli incontri cambiati; azzerando tutto si cancella */
 function storiaWrite(next){
-  if(next.matches.every(m=>!m.s[0] && !m.s[1])) return (PUB && PUB.matches.some(m=>m.s[0]||m.s[1])) ? {["storia/"+GARA]: null} : {};
-  const ch = {};
-  next.matches.forEach((m,i)=>{ const o = PUB && PUB.matches[i]; if(!o || o.s[0]!==m.s[0] || o.s[1]!==m.s[1]) ch["m"+i] = [m.s[0], m.s[1]]; });
+  if(next.matches.every(m=>!hasPts(m))) return (PUB && PUB.matches.some(hasPts)) ? {["storia/"+GARA]: null} : {};
+  const ch = {}, pk = new Map(PUB ? PUB.matches.map((m,i)=>[mkey(m,i), m]) : []);
+  next.matches.forEach((m,i)=>{ const k = mkey(m,i), o = pk.get(k), multi = m.defs && m.defs.length>1;
+    if(!o || o.s[0]!==m.s[0] || o.s[1]!==m.s[1] || o.sk!==m.sk) ch[k] = multi ? [m.s[0], m.s[1], m.sk] : [m.s[0], m.s[1]]; });
   return Object.keys(ch).length ? {["storia/"+GARA+"/r"+next.rev]: {t:next.updatedAt, m:ch}} : {};
 }
 async function publish(extra){
@@ -441,8 +596,8 @@ function discard(){ if(!PUB) return; snapshot(); S = normalize(clone(PUB)); comm
 function resetScores(){
   if(Date.now()-armT > 4000){ armT = Date.now(); renderBar(); setTimeout(renderBar, 4100); return; }
   armT = 0; snapshot();
-  S.matches.forEach(m=>{ m.s=[0,0]; if(m.ph){ m.ph=m.ph.map(()=>0); m.pa=m.pa.map(()=>0); } if(m.opts){ m.opt=-1; m.spec=""; m.target=0; } });
-  S.inCorso = []; commit();
+  S.matches.forEach(m=>{ m.s=[0,0]; if(m.ph){ m.ph=m.ph.map(()=>0); m.pa=m.pa.map(()=>0); } if(m.opts){ m.opt=-1; m.spec=""; m.target=0; } if(m.ss){ m.ss = m.ss.map(()=>[0,0]); m.ch = m.ch.map(()=>-1); } });
+  S.inCorso = []; S = normalize(S); commit();
 }
 
 /* ================= vista tabellone ================= */
@@ -474,7 +629,25 @@ function sideHTML(m, i, sd){
   const names = m.kind==="Staffetta" ? relayList(m,i,sd) : `<div class="names">${m[sd].map((_,j)=>ed(`matches.${i}.${sd}.${j}`,"p")).join("")}</div>`;
   return `<div class="side ${sd} ${w===sd?"won":w?"lost":""}">${names}<div class="bar"><i style="width:${pc}%"></i></div>${sc(i,sd)}</div>`;
 }
+function setsHTML(m, i){
+  const n = m.defs.length;
+  return `<div class="sets" style="grid-template-columns:repeat(${Math.min(n,3)},minmax(0,1fr))">` + m.defs.map((d,k)=>{
+    const x = m.ss[k], w = setWin(m,k), skip = !(x[0]||x[1]) && m.play<0;
+    const pick = d.opts && editor ? ` data-bo="${i}.${k}" title="Clic: specialità scelta all'acchito"` : "";
+    const spec = d.opts && !d.target ? `<span class="o${pick?" pick":""}"${pick} title="${esc(d.opts.map(o=>o.spec+" ai "+o.target).join(" / "))}">a scelta</span>`
+                                     : `<span class="o${pick?" pick":""}"${pick}>${esc(d.spec)} <i>ai ${d.target}</i></span>`;
+    const val = sd => { const v = x[sd==="h"?0:1];
+      return editor ? `<b contenteditable="plaintext-only" spellcheck="false" inputmode="numeric" data-ss="${i}.${k}.${sd}">${v}</b>` : `<b>${v}</b>`; };
+    return `<div class="set ${w ? "w"+w : ""} ${k===m.play ? "cur" : ""} ${skip ? "skip" : ""}"><em>${setLabel(k,n)}</em>${spec}<span class="r">${skip && !editor ? `<span class="ng">non giocato</span>` : val("h") + "<u>–</u>" + val("a")}</span></div>`;
+  }).join("") + `</div>`;
+}
 function specHTML(m, i){
+  if(m.defs){
+    const n = m.defs.length, d = m.defs[m.sk], lab = n>1 ? `<span class="sl">${setLabel(m.sk,n)}</span>` : "";
+    const pick = editor && d.opts ? ` data-bo="${i}.${m.sk}" title="Clic: specialità scelta all'acchito"` : "";
+    if(d.opts && !d.target) return `${lab}<span class="sp${pick?" pick":""}"${pick}>Specialità all'acchito</span>`;
+    return `${lab}<span class="sp${pick?" pick":""}"${pick}>${esc(d.spec)}<b>ai ${d.target}</b></span>`;
+  }
   const click = editor && m.opts ? ` data-opt="${i}" title="Clic: cambia specialità"` : "";
   if(m.opts && m.opt<0) return `<span class="sp${click?" pick":""}"${click}>Specialità all'acchito</span>`;
   return `<span class="sp${click?" pick":""}"${click}>${esc(m.spec)}<b>ai ${m.target}</b></span>`;
@@ -483,17 +656,18 @@ const TREND_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 function matchHTML(m, i){
   const w = winner(m), act = isAct(i), p = m.pts||1;
   const no = editor ? `<button class="no" data-act="${i}" title="Segna/togli in corso (tasto ${i+1})">${i+1}</button>` : `<span class="no">${i+1}</span>`;
-  const chip = w ? `<span class="chip win">+${p} ${esc(teamShort(w))}</span>`
+  const chip = w ? (isTorneo() ? `<span class="chip win">Vince ${esc(sideName(m,w))}</span>` : `<span class="chip win">+${p} ${esc(teamShort(w))}</span>`)
              : act ? `<span class="chip run">In corso</span>`
-             : (m.s[0]===0 && m.s[1]===0) ? `<span class="chip wait">Da giocare</span>` : "";
-  let extra = "";
+             : !hasPts(m) ? `<span class="chip wait">Da giocare</span>` : "";
+  let extra = m.defs && m.defs.length>1 ? setsHTML(m, i) : "";
+  const setc = m.defs && m.defs.length>1 ? `<span class="setc">Set <b>${m.sw[0]}–${m.sw[1]}</b></span>` : "";
   if(m.kind==="Staffetta"){
     const idx = relayIdx(m), n = m.h.length, done = !!w;
     extra = `<div class="rinfo">${m.h.map((_,f)=>`<span class="${f<idx||done?"d":""} ${!done&&f===idx?"c":""}">${f+1}ª</span>`).join("")}
       ${done ? "Staffetta conclusa" : idx<n-1 ? `Cambio a <b>${(idx+1)*m.step}</b>` : "Ultima frazione"} · vale <b>${p} ${p>1?"punti":"punto"}</b></div>`;
   }
   return `<article class="m ${act?"active":""}" data-row="${i}">
-    <div class="mh">${no}<span>${esc(m.kind)}</span>${specHTML(m,i)}${chip}${(m.s[0]||m.s[1]) ? `<button class="trend" data-tr="${i}" title="Andamento del punteggio" aria-label="Andamento del punteggio">${TREND_ICON}</button>` : ""}</div>
+    <div class="mh">${no}${isTorneo() ? "" : `<span>${esc(m.kind)}</span>`}${specHTML(m,i)}${setc}${chip}${hasPts(m) ? `<button class="trend" data-tr="${i}" title="Andamento del punteggio" aria-label="Andamento del punteggio">${TREND_ICON}</button>` : ""}</div>
     <div class="duel">${sideHTML(m,i,"h")}${sideHTML(m,i,"a")}</div>${extra}</article>`;
 }
 function updText(){
@@ -505,19 +679,30 @@ function updText(){
   const when = `<b>${fmtTime(p.updatedAt)}</b>${d!==td?` del ${d}`:""}`;
   return p.stato==="finita" ? `Risultato finale · ultimo aggiornamento alle ${when}` : `Aggiornato alle ${when} · la pagina si aggiorna automaticamente`;
 }
+function torneoHTML(){
+  const c = champion(), n = S.matches.length, fatti = S.matches.filter(m=>winner(m)).length;
+  let html = c ? `<section class="champ"><span class="k">🏆 ${esc(c.label)}</span><span class="n">${esc(c.n)}</span></section>` : "";
+  html += `<div class="upd">${updText()}</div>`;
+  if(n) html += `<div class="tinfo">${S.gioco==="Coppia" ? "Coppie" : "Singoli"} · <b>${fatti}</b> incontri conclusi su <b>${n}</b></div>`;
+  else html += `<p class="empty">Gli incontri non sono ancora stati inseriti.</p>`;
+  let cur = null;
+  S.matches.forEach((m,i)=>{ if(m.turno!==cur){ cur = m.turno; if(cur) html += `<h2 class="turno">${esc(cur)}</h2>`; } html += matchHTML(m,i); });
+  if(editor) html += `<button class="incbtn" data-inc>✎ ${n ? "Modifica gli incontri" : "Inserisci gli incontri"}</button>`;
+  return html;
+}
 function boardHTML(){
   const t = totals();
   const badge = S.stato==="finita" ? `<span class="live fin">FINALE</span>` : S.stato==="programmata" ? `<span class="live prog">PROSSIMA</span>` : `<span class="live"><i></i>LIVE</span>`;
   return `<main class="wrap">
     ${REGIA ? "" : `<a class="back" href="${esc(pageURL("") || "?")}">← Tutte le gare</a>`}
     <div class="top"><div>${ed("title","comp","div")}${ed("subtitle","sub","div")}</div><div class="badges">${badge}<span id="viewers" class="viewers">${viewersHTML()}</span></div></div>
-    <section class="score" aria-label="Punteggio squadre">
+    ${isTorneo() ? torneoHTML() : `<section class="score" aria-label="Punteggio squadre">
       <div class="team h"><img src="${LOGO_HOME}" alt="Logo ${esc(S.home.name)}">${ed("home.name","tn","div")}${ed("home.city","tc","div")}</div>
       <div class="tot" aria-label="Punti squadra"><span class="h">${t[0]}</span><span class="x">–</span><span class="a">${t[1]}</span></div>
       <div class="team a">${awayBadge()}${ed("away.name","tn","div")}${ed("away.city","tc","div")}</div>
     </section>
     <div class="upd">${updText()}</div>
-    ${S.matches.map(matchHTML).join("")}
+    ${S.matches.map(matchHTML).join("")}`}
     <div class="foot">Biliardo Seconda Passione · Bologna</div>
   </main>`;
 }
@@ -532,7 +717,8 @@ function listHTML(idx, forRegia){
     const href = forRegia ? `?regia&gara=${g.id}` : `?gara=${g.id}`;
     return `<a class="gcard" href="${href}"><div class="gtop"><span>${esc(fmtDate(g.data))}</span>${st}</div>
       <div class="gtit">${esc(g.titolo)}</div><div class="gsub">${esc(g.sottotitolo)}</div>
-      <div class="gvs"><span>${esc(g.casa)}</span><b>${+p[0]||0} – ${+p[1]||0}</b><span>${esc(g.ospite)}</span></div></a>`;
+      ${g.tipo==="torneo" ? `<div class="gvs t">${g.vincitore ? `🏆 <b>${esc(g.vincitore)}</b>` : `${+g.fatti||0} incontri conclusi su ${+g.totale||0}`}</div>`
+        : `<div class="gvs"><span>${esc(g.casa)}</span><b>${+p[0]||0} – ${+p[1]||0}</b><span>${esc(g.ospite)}</span></div>`}</a>`;
   };
   return items.length ? `<div class="glist">${items.map(card).join("")}</div>` : `<p class="empty">Nessuna gara ancora pubblicata. Le dirette compariranno qui.</p>`;
 }
@@ -552,10 +738,16 @@ function regiaHomeHTML(idx){
       <h2>Nuova gara</h2>
       <label for="ng-f">Competizione</label><select id="ng-f">${opts}</select>
       <label for="ng-d">Data</label><input id="ng-d" type="date" value="${today()}" required>
-      <label for="ng-g">Giornata</label><input id="ng-g" value="Prima giornata">
+      <div class="fs" data-fs="sq"><label for="ng-g">Giornata</label><input id="ng-g" value="Prima giornata"></div>
+      <div class="fs" data-fs="to" hidden><label for="ng-t">Nome del torneo</label><input id="ng-t" required disabled placeholder="es. 1° Memorial Luca Tamburini">
+        <label for="ng-fa">Fase / giornata</label><input id="ng-fa" disabled placeholder="es. Batteria 1 (facoltativo)">
+        <label for="ng-gi">Gioco</label><select id="ng-gi" disabled><option value="Singolo">Singoli</option><option value="Coppia">Coppie</option></select>
+        <label for="ng-p">Partita</label><input id="ng-p" required disabled placeholder="es. Italiana ai 100">
+        <p class="hint">Set secco <b>Italiana ai 100</b> · al meglio dei tre <b>2 su 3 Italiana ai 100</b> ·
+          set misti <b>5 Birilli ai 120 + Filotto 60 ai 600 + bella a scelta</b>. Si può cambiare per singoli incontri.</p></div>
       <label for="ng-l">Luogo</label><input id="ng-l" placeholder="es. Modena">
-      <label for="ng-o">Squadra avversaria</label><input id="ng-o" required placeholder="es. Tempio B">
-      <label for="ng-c">Città avversaria</label><input id="ng-c" placeholder="es. Modena · MO">
+      <div class="fs" data-fs="sq"><label for="ng-o">Squadra avversaria</label><input id="ng-o" required placeholder="es. Tempio B">
+        <label for="ng-c">Città avversaria</label><input id="ng-c" placeholder="es. Modena · MO"></div>
       <button type="submit">Crea gara</button><p class="hint" id="ng-msg"></p>
     </form>
     <h2 class="lh">Gare</h2>${listHTML(idx, true)}</main>`;
@@ -595,10 +787,9 @@ function render(){
   document.body.classList.toggle("ed", editor);
   if(mode==="board" && S){
     app.innerHTML = boardHTML();
-    if(prev) S.matches.forEach((m,i)=>["h","a"].forEach((sd,k)=>{
-      const o = prev.matches[i] && prev.matches[i].s[k];
-      if(prev.matches[i] && o!==m.s[k]) app.querySelectorAll(`[data-sc="${i}.${sd}"]`).forEach(e=>scoreFx(e, o, m.s[k], sd));
-    }));
+    if(prev){ const pm = new Map(prev.matches.map((m,i)=>[mkey(m,i), m]));
+      S.matches.forEach((m,i)=>{ const q = pm.get(mkey(m,i)); if(q && q.sk===m.sk) ["h","a"].forEach((sd,k)=>{
+        if(q.s[k]!==m.s[k]) app.querySelectorAll(`[data-sc="${i}.${sd}"]`).forEach(e=>scoreFx(e, q.s[k], m.s[k], sd)); }); }); }
     if(prev && prev.matches.length===S.matches.length){ const a = totals(prev), b = totals(S);
       [".tot .h",".tot .a"].forEach((q,k)=>{ if(a[k]===b[k]) return; const e = app.querySelector(q); if(!e) return;
         if(RM){ e.classList.add("bump"); return; }
@@ -625,12 +816,13 @@ function renderBar(){
     <button class="pub" data-r="pub" ${busy?"disabled":""}>PUBBLICA <small>(P)</small></button>
     <button data-r="disc" ${d&&!busy?"":"disabled"}>Scarta</button>
     <button class="more" data-r="more" title="Altri comandi" aria-label="Altri comandi" aria-expanded="${barOpen}">${barOpen ? "✕" : "⋯"}</button>
+    ${isTorneo() ? `<button class="x" data-r="inc">Incontri…</button>` : ""}
     <button class="x" data-r="end">${S.stato==="finita"?"Riapri gara":"Termina gara"}</button>
     ${S.stato==="live" ? `<button data-r="prog" class="x ${Date.now()-armP<4000?"arm":""}" title="Torna a In programma: azzera punteggi e cronologia">${Date.now()-armP<4000?"Conferma: in programma":"Rimetti in programma"}</button>` : ""}
     <button data-r="reset" class="x ${Date.now()-armT<4000?"arm":""}">${Date.now()-armT<4000?"Conferma: azzera":"Azzera punteggi"}</button>
     <a class="rlink" href="?regia">Tutte le gare</a>
     <span class="tip">Link per il pubblico: <span class="url" id="puburl">${esc(pub || "?gara="+GARA)}</span> <button data-r="copy">Copia</button> · link fisso per tutte le dirette: <span class="url">${esc(pageURL("?live") || "?live")}</span><br>
-    Clic su un punteggio: scrivi i punti del tiro e Invio (si sommano); − Togli / = Totale per togliere o correggere (da tastiera anche -2, =150). 📈 nell'incontro: andamento. Numero dell'incontro o tasti 1–${S.matches.length}: in corso. Doppio clic sul logo ospite per caricarne uno. Ctrl+Z annulla.</span>`;
+    Clic su un punteggio: scrivi i punti del tiro e Invio (si sommano); − Togli / = Totale per togliere o correggere (da tastiera anche -2, =150). 📈 nell'incontro: andamento. Numero dell'incontro o tasti 1–${S.matches.length}: in corso. ${isTorneo() ? "Incontri…: turni e giocatori del torneo." : "Doppio clic sul logo ospite per caricarne uno."} Ctrl+Z annulla.</span>`;
 }
 
 /* ================= interazioni ================= */
@@ -647,6 +839,10 @@ app.addEventListener("focusout", e=>{
   const txt = el.textContent.replace(/\s+/g," ").trim();
   if(el.dataset.cancel){ setTimeout(render); return; }
   if(el.dataset.ed){ if(getP(el.dataset.ed)!==txt){ snapshot(); setP(el.dataset.ed, txt); } setTimeout(commit); }
+  else if(el.dataset.ss){
+    const [i,k,sd] = el.dataset.ss.split("."), v = entryValue(txt, scoreCur(el), el.dataset.mode || "add");
+    setTimeout(()=>{ if(v!==null) setSetScore(+i, +k, sd, v); render(); });
+  }
   else if(el.dataset.fr || el.dataset.sc){
     const op = el.dataset.mode || "add", fr = el.dataset.fr, [i,sd,j] = (fr || el.dataset.sc).split(".");
     const v = entryValue(txt, scoreCur(el), op);
@@ -656,7 +852,9 @@ app.addEventListener("focusout", e=>{
 /* punti: "10" si somma al totale (o lo toglie / lo imposta con i pulsanti); da tastiera anche +10, -10, =150 */
 function scoreCur(el){
   if(el.dataset.fr){ const [i,sd,j] = el.dataset.fr.split("."); return S.matches[i][sd==="h"?"ph":"pa"][j]; }
-  const [i,sd] = el.dataset.sc.split("."); return S.matches[i].s[sd==="h"?0:1];
+  if(el.dataset.ss){ const [i,k,sd] = el.dataset.ss.split("."); return S.matches[i].ss[k][sd==="h"?0:1]; }
+  const [i,sd] = el.dataset.sc.split("."), m = S.matches[i];
+  return m.defs ? m.ss[editSet(m)][sd==="h"?0:1] : m.s[sd==="h"?0:1];
 }
 function entryValue(txt, cur, op){
   const mm = txt.replace(/\s/g,"").match(/^([+=\-−–])?(\d+)$/); if(!mm) return null;
@@ -674,14 +872,14 @@ function showKp(el){
   kp.style.left = (Math.max(8, Math.min(rc.right - w, vw - w - 8)) + scrollX) + "px";
 }
 app.addEventListener("focusin", e=>{
-  const el = e.target; if(!editor || !el.dataset || !(el.dataset.sc || el.dataset.fr)) return;
+  const el = e.target; if(!editor || !el.dataset || !(el.dataset.sc || el.dataset.fr || el.dataset.ss)) return;
   el.dataset.cur = scoreCur(el); delete el.dataset.mode; el.textContent = ""; showKp(el);
 });
-app.addEventListener("focusout", e=>{ if(e.target.dataset && (e.target.dataset.sc || e.target.dataset.fr)) hideKp(); }, true);
+app.addEventListener("focusout", e=>{ if(e.target.dataset && (e.target.dataset.sc || e.target.dataset.fr || e.target.dataset.ss)) hideKp(); }, true);
 ["mousedown","pointerdown"].forEach(t=>kp.addEventListener(t, e=>e.preventDefault()));
 kp.addEventListener("click", e=>{
   const b = e.target.closest("button"), el = document.activeElement;
-  if(!b || !el || !el.dataset || !(el.dataset.sc || el.dataset.fr)) return;
+  if(!b || !el || !el.dataset || !(el.dataset.sc || el.dataset.fr || el.dataset.ss)) return;
   el.dataset.mode = b.dataset.k; el.blur();
 });
 /* ---- andamento: grafico e parziali, letti da storia/<gara> (si aggiorna da solo mentre è aperto) ---- */
@@ -696,27 +894,37 @@ function openTrend(i){
 function closeTrend(){ $("#trm").hidden = true; if(trOff) trOff(); trOff = null; trI = -1; }
 function drawTrend(){
   if(trI<0 || !S || !S.matches[trI]) return;
-  const m = S.matches[trI], box = $("#trm .bx");
-  let html = `<button class="cls" data-cl aria-label="Chiudi">✕</button>
-    <h3>${trI+1} · ${esc(m.kind)} ${esc(m.spec||"")}${m.target ? ` <b>ai ${m.target}</b>` : ""}</h3>`;
+  const m = S.matches[trI], box = $("#trm .bx"), multi = !!(m.defs && m.defs.length>1);
+  const head = multi ? `${trI+1} · ${esc(m.turno||"")}` : `${trI+1} · ${esc(isTorneo() ? (m.turno||"") : m.kind)} · ${esc(m.spec||"")}${m.target ? ` <b>ai ${m.target}</b>` : ""}`;
+  let html = `<button class="cls" data-cl aria-label="Chiudi">✕</button><h3>${head}</h3>`;
   if(trData===null){ box.innerHTML = html + `<p class="hint">Caricamento…</p>`; return; }
   if(trData==="err"){ box.innerHTML = html + `<p class="hint">Cronologia non disponibile.</p>`; return; }
-  const ent = Object.values(trData).filter(e=>e && e.t && e.m).sort((a,b)=>a.t-b.t), k = "m" + trI, pts = [];
+  const ent = Object.values(trData).filter(e=>e && e.t && e.m).sort((a,b)=>a.t-b.t), key = mkey(m, trI), series = {};
   ent.forEach((e,ix)=>{
-    const v = e.m[k]; if(!v) return; const a = arr(v);
-    if(!pts.length) pts.push({t: ix>0 ? ent[ix-1].t : e.t, h:0, a:0});
-    pts.push({t:e.t, h:+a[0]||0, a:+a[1]||0});
+    const v = e.m[key]; if(!v) return; const a = arr(v), k = +a[2]||0, ps = series[k] || (series[k] = []);
+    if(!ps.length) ps.push({t: ix>0 ? ent[ix-1].t : e.t, h:0, a:0});
+    ps.push({t:e.t, h:+a[0]||0, a:+a[1]||0});
   });
-  if(pts.length<2){ box.innerHTML = html + `<p class="hint">Nessun punteggio pubblicato per questo incontro: la cronologia si riempie a ogni PUBBLICA.</p>`; return; }
+  const ks = Object.keys(series).map(Number).sort((a,b)=>a-b).filter(k=>series[k].length>1);
+  if(!ks.length){ box.innerHTML = html + `<p class="hint">Nessun punteggio pubblicato per questo incontro: la cronologia si riempie a ogni PUBBLICA.</p>`; return; }
+  html += `<div class="lg"><span class="h">● ${esc(sideName(m,"h"))}</span><span class="a">● ${esc(sideName(m,"a"))}</span></div>`;
+  ks.forEach(k=>{
+    const d = multi ? (m.defs[k] || {}) : m;
+    if(multi) html += `<h4>${setLabel(k, m.defs.length)} · ${esc(d.spec||"")}${d.target ? ` <b>ai ${d.target}</b>` : ""}</h4>`;
+    html += chartHTML(series[k], d.target||0, m);
+  });
+  box.innerHTML = html + `<p class="hint">Un punto a ogni pubblicazione della regia.</p>`;
+}
+function chartHTML(pts, target, m){
   const W = 560, H = 230, L = 40, Rr = 12, T = 12, B = 26, t0 = pts[0].t, t1 = Math.max(pts.at(-1).t, t0 + 60000);
-  const top = Math.max(m.target||0, ...pts.map(p=>Math.max(p.h,p.a))) || 1;
+  const top = Math.max(target||0, ...pts.map(p=>Math.max(p.h,p.a))) || 1;
   const X = t => (L + (t-t0)/(t1-t0)*(W-L-Rr)).toFixed(1), Y = v => (T + (1 - v/top)*(H-T-B)).toFixed(1);
   const path = sd => pts.map((p,j)=>(j?"L":"M") + X(p.t) + " " + Y(p[sd])).join(" ");
   const dots = sd => pts.slice(1).map(p=>`<circle cx="${X(p.t)}" cy="${Y(p[sd])}" r="3.2"/>`).join("");
   const grid = [0, .5, 1].map(f=>`<line x1="${L}" x2="${W-Rr}" y1="${Y(top*f)}" y2="${Y(top*f)}" style="stroke:rgba(150,190,255,.12)"/>`).join("");
   const lab = (x, y, t, anc="start") => `<text x="${x}" y="${y}" text-anchor="${anc}" style="fill:var(--mute);font:600 13px var(--fc)">${t}</text>`;
   const svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Andamento del punteggio">${grid}
-    ${m.target ? `<line x1="${L}" x2="${W-Rr}" y1="${Y(m.target)}" y2="${Y(m.target)}" style="stroke:var(--gold);stroke-dasharray:6 5;opacity:.8"/>` : ""}
+    ${target ? `<line x1="${L}" x2="${W-Rr}" y1="${Y(target)}" y2="${Y(target)}" style="stroke:var(--gold);stroke-dasharray:6 5;opacity:.8"/>` : ""}
     <path d="${path("h")}" style="fill:none;stroke:var(--home);stroke-width:2.6;stroke-linejoin:round"/>
     <path d="${path("a")}" style="fill:none;stroke:var(--away);stroke-width:2.6;stroke-linejoin:round"/>
     <g style="fill:var(--home)">${dots("h")}</g><g style="fill:var(--away)">${dots("a")}</g>
@@ -726,22 +934,100 @@ function drawTrend(){
   let rows = "";
   for(let j=pts.length-1; j>=1; j--){ const p = pts[j], q = pts[j-1];
     rows += `<tr><td>${fmtTime(p.t)}</td><td>${p.h}${dl(p.h-q.h)}</td><td>${p.a}${dl(p.a-q.a)}</td></tr>`; }
-  box.innerHTML = html + `<div class="lg"><span class="h">● ${esc(teamShort("h"))}</span><span class="a">● ${esc(teamShort("a"))}</span></div>${svg}
-    <table><thead><tr><th>Ora</th><th class="h">${esc(teamShort("h"))}</th><th class="a">${esc(teamShort("a"))}</th></tr></thead><tbody>${rows}</tbody></table>
-    <p class="hint">Un punto a ogni pubblicazione della regia.</p>`;
+  return svg + `<table><thead><tr><th>Ora</th><th class="h">${esc(sideName(m,"h"))}</th><th class="a">${esc(sideName(m,"a"))}</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 $("#trm").addEventListener("click", e=>{ if(e.target.id==="trm" || e.target.closest("[data-cl]")) closeTrend(); });
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("#trm").hidden) closeTrend(); });
+/* ---- torneo: finestra "Incontri del torneo" (testo: # turno, poi un incontro per riga) ---- */
+let incArm = 0;
+function serialInc(){
+  let t = "", cur = null;
+  S.matches.forEach(m=>{
+    if(m.turno!==cur){ cur = m.turno; if(cur || t) t += (t ? "\n" : "") + "# " + cur + "\n"; }
+    const nm = sd => namesOf(m, sd) || "?";
+    t += nm("h") + " - " + nm("a") + (m.formato ? " | " + m.formato : "") + "\n";
+  });
+  return t;
+}
+function openInc(){
+  $("#ed-g").value = S.gioco; $("#ed-p").value = S.formato || "";
+  $("#ed-x").value = serialInc(); $("#ed-m").textContent = ""; incArm = 0; paintIncBtn();
+  $("#edm").hidden = false; setTimeout(()=>$("#ed-x").focus(), 50);
+}
+function closeInc(){ $("#edm").hidden = true; incArm = 0; }
+function paintIncBtn(){ const b = $('#edm [data-e="ok"]'); b.classList.toggle("arm", !!incArm); b.textContent = incArm ? "Conferma: applica" : "Applica"; }
+function parseInc(txt, gioco){
+  const out = [], errs = []; let turno = "";
+  const side = t=>{ t = (t||"").trim(); if(t==="?" || t==="-") t = "";
+    const v = gioco==="Coppia" ? t.split("/").map(x=>x.trim()) : [t];
+    return (gioco==="Coppia" ? [v[0]||"", v[1]||""] : v).map(x=>x==="?" ? "" : x); };
+  txt.split(/\r?\n/).forEach((raw, n)=>{
+    const l = raw.trim(); if(!l) return;
+    if(l.startsWith("#")){ turno = l.replace(/^#+\s*/, ""); return; }
+    const [body, ov] = l.split("|"); let o = null;
+    if(ov!==undefined){ const f = ov.trim().replace(/\s+/g, " "), pf = parseFormato(f);
+      if(pf.err) errs.push(`Riga ${n+1}: ${pf.err}`); else o = {formato:f}; }
+    const parts = (" " + body.trim() + " ").split(/\s(?:-|–|vs\.?)\s/i);
+    if(parts.length>2) errs.push(`Riga ${n+1}: più di due giocatori/coppie ("${l}"): separa i due avversari con un solo " - "`);
+    out.push(Object.assign({turno, h:side(parts[0]), a:side(parts[1])}, o||{}));
+  });
+  return {out, errs};
+}
+function applyInc(){
+  const g = $("#ed-g").value, fmt = $("#ed-p").value.trim().replace(/\s+/g, " ");
+  const {out, errs} = parseInc($("#ed-x").value, g);
+  if(errs.length){ $("#ed-m").textContent = errs.slice(0,3).join(" · "); incArm = 0; paintIncBtn(); return; }
+  const pd = parseFormato(fmt);
+  if(pd.err && (out.some(p=>!p.formato) || fmt)){ $("#ed-m").textContent = "Partita: " + pd.err; incArm = 0; paintIncBtn(); return; }
+  const old = S.matches, used = new Set(), res = [];
+  const key = m => [m.turno, ...m.h, ...m.a].map(x=>String(x||"").trim().toLowerCase()).join("|");
+  const pos = (list, i) => list.slice(0, i).filter(x=>x.turno===list[i].turno).length;
+  let next = S.nextId || 1;
+  out.forEach((p, i)=>{
+    let o = old.find(x=>!used.has(x.id) && key(x)===key(p));
+    if(!o){ const k = pos(out, i); o = old.find((x, j)=>!used.has(x.id) && x.turno===p.turno && pos(old, j)===k); }
+    if(o) used.add(o.id);
+    res.push({id: o ? o.id : next++, turno:p.turno, kind:g, formato:p.formato||"", pts:1, h:p.h, a:p.a,
+      ss: o ? o.ss.map(x=>x.slice()) : [], ch: o ? o.ch.slice() : []});
+  });
+  const lost = old.filter(x=>!used.has(x.id) && hasPts(x));
+  if(lost.length && !incArm){
+    incArm = Date.now(); paintIncBtn();
+    $("#ed-m").textContent = `Attenzione: ${lost.length===1 ? "1 incontro con punteggio sparirebbe" : lost.length + " incontri con punteggio sparirebbero"} (${lost.map(x=>(namesOf(x,"h")||"?")+" - "+(namesOf(x,"a")||"?")).join(", ")}). Premi di nuovo per confermare.`;
+    return;
+  }
+  snapshot();
+  const actIds = (S.inCorso||[]).map(i=>old[i] && old[i].id);
+  Object.assign(S, {gioco:g, formato:fmt, matches:res, nextId:next});
+  S.inCorso = res.map((m, i)=>actIds.includes(m.id) ? i : -1).filter(i=>i>=0);
+  S = normalize(S); closeInc(); commit(); setFlash("Incontri aggiornati: premi PUBBLICA per mostrarli al pubblico");
+}
+$("#edm").addEventListener("click", e=>{
+  const b = e.target.closest("[data-e]"); if(e.target.id==="edm" || (b && b.dataset.e==="no")){ closeInc(); return; }
+  if(b && b.dataset.e==="ok") applyInc();
+});
+$("#ed-x").addEventListener("input", ()=>{ if(incArm){ incArm = 0; paintIncBtn(); $("#ed-m").textContent = ""; } });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("#edm").hidden) closeInc(); });
 function toggleAct(i){ snapshot(); const a = new Set(S.inCorso||[]); a.has(i) ? a.delete(i) : a.add(i); S.inCorso = [...a].sort(); commit(); }
 app.addEventListener("click", e=>{
   if(e.target.id==="logout"){ signOut(); return; }
   const tb = e.target.closest("[data-tr]"); if(tb){ openTrend(+tb.dataset.tr); return; }
   if(!editor || mode!=="board") return;
+  if(e.target.closest("[data-inc]")){ openInc(); return; }
+  const bo = e.target.closest("[data-bo]");
+  if(bo){ const [i,k] = bo.dataset.bo.split(".").map(Number), m = S.matches[i], d = m.defs[k]; snapshot();
+    m.ch[k] = (m.ch[k] + 2) % (d.opts.length + 1) - 1; S = normalize(S); commit(); return; }
   const a = e.target.closest("[data-act]"), o = e.target.closest("[data-opt]"), el = e.target.closest("[contenteditable]");
   if(a){ toggleAct(+a.dataset.act); return; }
   if(o){ const m = S.matches[+o.dataset.opt]; snapshot(); m.opt = (m.opt+1) % m.opts.length; m.spec = m.opts[m.opt].spec; m.target = m.opts[m.opt].target; commit(); return; }
   if(e.target.closest("img[data-logo]")){ $("#logofile").click(); return; }
   if(el && wasFocused!==el){ const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+});
+/* nuova gara: campi diversi per squadre e tornei */
+app.addEventListener("change", e=>{
+  if(e.target.id!=="ng-f") return;
+  const tor = !!FORMULE[e.target.value].torneo;
+  app.querySelectorAll("[data-fs]").forEach(g=>{ const on = (g.dataset.fs==="to")===tor; g.hidden = !on; g.querySelectorAll("input,select").forEach(x=>x.disabled = !on); });
 });
 app.addEventListener("dblclick", e=>{ if(editor && e.target.closest("[data-logo]")){ getSelection().removeAllRanges(); $("#logofile").click(); } });
 app.addEventListener("submit", async e=>{
@@ -763,7 +1049,10 @@ app.addEventListener("submit", async e=>{
   }
   if(e.target.id==="newgara"){
     const o = {formula:$("#ng-f").value, data:$("#ng-d").value, giornata:$("#ng-g").value.trim(), luogo:$("#ng-l").value.trim(), ospite:$("#ng-o").value.trim(), citta:$("#ng-c").value.trim()};
-    const id = [o.formula, o.data, slug(o.ospite)].filter(Boolean).join("-");
+    const tor = !!FORMULE[o.formula].torneo;
+    if(tor) Object.assign(o, {titolo:$("#ng-t").value.trim(), fase:$("#ng-fa").value.trim(), gioco:$("#ng-gi").value, formato:$("#ng-p").value.trim().replace(/\s+/g, " ")});
+    if(tor){ const pf = parseFormato(o.formato); if(pf.err){ $("#ng-msg").textContent = "Partita: " + pf.err; return; } }
+    const id = tor ? ["torneo", o.data, slug(o.titolo), slug(o.fase)].filter(Boolean).join("-") : [o.formula, o.data, slug(o.ospite)].filter(Boolean).join("-");
     if(INDEX && INDEX[id]){ location.search = "?regia&gara=" + id; return; }
     const st = newState(o);
     try{ await dbWrite({["gare/"+id]: st, ["indice/"+id]: metaOf(st)}); location.search = "?regia&gara=" + id; }
@@ -789,12 +1078,13 @@ $("#rbar").addEventListener("click", e=>{
   if(r==="pub") publish();
   else if(r==="disc") discard();
   else if(r==="more"){ barOpen = !barOpen; renderBar(); }
+  else if(r==="inc") openInc();
   else if(r==="reset") resetScores();
   else if(r==="prog"){
     if(Date.now()-armP > 4000){ armP = Date.now(); renderBar(); setTimeout(renderBar, 4100); }
     else { armP = 0; snapshot();
-      S.matches.forEach(m=>{ m.s=[0,0]; if(m.ph){ m.ph=m.ph.map(()=>0); m.pa=m.pa.map(()=>0); } if(m.opts){ m.opt=-1; m.spec=""; m.target=0; } });
-      S.inCorso = []; S.stato = "programmata"; publish({stato:"programmata"}); }
+      S.matches.forEach(m=>{ m.s=[0,0]; if(m.ph){ m.ph=m.ph.map(()=>0); m.pa=m.pa.map(()=>0); } if(m.opts){ m.opt=-1; m.spec=""; m.target=0; } if(m.ss){ m.ss = m.ss.map(()=>[0,0]); m.ch = m.ch.map(()=>-1); } });
+      S.inCorso = []; S.stato = "programmata"; S = normalize(S); publish({stato:"programmata"}); }
   }
   else if(r==="end"){ snapshot(); S.stato = S.stato==="finita" ? "live" : "finita"; S.inCorso = S.stato==="finita" ? [] : S.inCorso; publish(); }
   else if(r==="copy"){ const t = $("#puburl").textContent;
