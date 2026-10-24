@@ -191,6 +191,28 @@ body.ed [data-logo]{cursor:pointer}
 .gvs.t{display:block;text-align:center;color:var(--mute);font-size:16px}
 .gvs.t b{font-size:17px;color:var(--gold);font-family:var(--fc)}
 .fs{display:contents}
+/* incontro concluso: la scheda prende il colore di chi ha vinto (bordo, sfumatura dal suo lato, badge) */
+.m.won-h{border-color:rgba(60,200,255,.6);background:linear-gradient(90deg,rgba(60,200,255,.2),var(--panel) 50%)}
+.m.won-a{border-color:rgba(255,122,61,.6);background:linear-gradient(270deg,rgba(255,122,61,.2),var(--panel) 50%)}
+.m.won-h .chip.win{background:var(--home);color:#04121c}
+.m.won-a .chip.win{background:var(--away);color:#1f0b02}
+.side.won .p,.side.won .r .nm{color:#fff}
+@media (max-width:639px){
+  .m.won-h{background:linear-gradient(180deg,rgba(60,200,255,.2),var(--panel) 55%)}
+  .m.won-a{background:linear-gradient(0deg,rgba(255,122,61,.2),var(--panel) 55%)}
+}
+/* modulo "Partita": set e specialità da menu */
+.fb{display:flex;flex-direction:column;gap:6px;padding:8px 10px;border:1px solid #3b4a63;border-radius:8px;background:#141e2e;min-width:0}
+.fbh{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.fbh .fbn{flex:1 1 140px}
+.fbr{display:grid;grid-template-columns:58px minmax(0,1fr) 86px;gap:6px;align-items:center}
+.fbr .fbl{color:var(--mute);font-weight:700;font-size:13px;letter-spacing:.04em;white-space:nowrap}
+.fbr [data-f="altro"]{grid-column:2 / 4}
+.fbr.fsc [data-f="spec"]{grid-column:2 / 4}
+.fb select,.fb input{font:inherit;padding:7px 9px;border-radius:6px;border:1px solid #3b4a63;background:#1b2536;color:var(--ink);min-width:0}
+.fb .del{font:inherit;font-size:13px;padding:6px 10px;border-radius:6px;border:1px solid #6b3a3a;background:transparent;color:#ffb0b0;cursor:pointer}
+#edm .fbs{display:flex;flex-direction:column;gap:8px}
+#edm .addf{align-self:flex-start;font:inherit;font-weight:700;padding:7px 12px;border-radius:6px;border:1px dashed #4b6584;background:transparent;color:#cfe0f5;cursor:pointer}
 /* set: conteggio in testata, etichetta del set mostrato, caselle dei set sotto l'incontro */
 .setc{margin-left:auto;font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--mute);white-space:nowrap}
 .setc b{color:var(--ink);font-size:16px;letter-spacing:.04em}
@@ -281,14 +303,13 @@ body.ed [data-logo]{cursor:pointer}
 <div id="kp" aria-hidden="true"><button data-k="add" class="add">+ Aggiungi</button><button data-k="sub">− Togli</button><button data-k="set">= Totale</button></div>
 <div id="edm" hidden><div class="bx" role="dialog" aria-modal="true" aria-label="Incontri del torneo">
   <h3>Incontri del torneo</h3>
-  <div class="row"><label>Gioco<select id="ed-g"><option value="Singolo">Singoli</option><option value="Coppia">Coppie</option></select></label>
-    <label>Partita (per tutti gli incontri)<input id="ed-p" placeholder="es. Italiana ai 100 · 2 su 3 Italiana ai 100"></label></div>
-  <textarea id="ed-x" spellcheck="false" autocapitalize="characters" placeholder="# Batteria · Quarti di finale&#10;Galli - Rossi&#10;Tamburini - Bianchi&#10;# Batteria · Semifinale&#10;? - ?&#10;# Finale&#10;? - ? | 2 su 3 Goriziana ai 400"></textarea>
+  <div class="row"><label>Gioco<select id="ed-g"><option value="Singolo">Singoli</option><option value="Coppia">Coppie</option></select></label></div>
+  <div class="fbs" id="ed-fs"></div>
+  <button class="addf" data-e="addf">+ Altra formula (es. per la finale)</button>
+  <textarea id="ed-x" spellcheck="false" autocapitalize="characters" placeholder="# Batteria · Quarti di finale&#10;Galli - Rossi&#10;Tamburini - Bianchi&#10;# Batteria · Semifinale&#10;? - ?&#10;# Finale&#10;? - ? | Finale"></textarea>
   <p class="hint">Una riga <code># Nome del turno</code>, poi un incontro per riga: <code>Galli - Rossi</code> (coppie: <code>Galli / Tamburini - Rossi / Bianchi</code>).
-    Nomi ancora da decidere: <code>? - ?</code>. Partita diversa per un incontro: in fondo <code>| 2 su 3 Goriziana ai 400</code>.<br>
-    Partita: set secco <code>Italiana ai 100</code> · al meglio dei tre <code>2 su 3 Italiana ai 100</code> · set misti
-    <code>5 Birilli ai 120 + Filotto 60 ai 600 + bella a scelta</code> (la bella si sceglie all'acchito tra le specialità dei set;
-    oppure <code>bella: 5 Birilli ai 120 / Filotto 60 ai 600</code>).
+    Nomi ancora da decidere: <code>? - ?</code>. La prima formula vale per tutti gli incontri; per usarne un'altra in un incontro
+    scrivi in fondo alla riga il suo nome, per esempio <code>| Finale</code>.
     Gli incontri compaiono nell'ordine scritto; i punteggi già inseriti restano se l'incontro resta nello stesso turno e posizione.</p>
   <p class="err" id="ed-m"></p>
   <div class="btns"><button class="ghost" data-e="no">Annulla</button><button data-e="ok">Applica</button></div>
@@ -369,16 +390,21 @@ function normalize(st){
   if(f.torneo){
     st.gioco = st.gioco==="Coppia" ? "Coppia" : "Singolo";
     if(!st.formato && st.spec && st.target) st.formato = st.spec + " ai " + st.target;   /* tornei creati prima dei set */
-    st.formato = st.formato || ""; delete st.spec; delete st.target;
+    st.formule = arr(st.formule).filter(Boolean).map(normFormula);
+    if(!st.formule.length){ const p = parseFormato(st.formato);   /* tornei creati con la formula scritta a testo */
+      st.formule = [normFormula(p.sets ? {nome:"Normale", n:p.sets.length, sets:p.sets.map(d=>d.opts ? {scelta:true} : d)} : FB_NUOVA, 0)]; }
+    st.formato = ""; delete st.spec; delete st.target;
     const n = st.gioco==="Coppia" ? 2 : 1; let mx = 0;
     st.matches = arr(st.matches).filter(Boolean).map((m,i)=>{
       const id = Number.isInteger(m.id) ? m.id : i+1; mx = Math.max(mx, id);
       let fm = m.formato || "";
-      if(!fm && !m.ss && m.spec && m.target && (m.spec + " ai " + m.target)!==st.formato) fm = m.spec + " ai " + m.target;
-      const defs = parseFormato(fm || st.formato).sets || [{spec:"?", target:0}];
+      if(!fm && !m.fr && !m.ss && m.spec && m.target) fm = m.spec + " ai " + m.target;
+      const fr = m.fr && findFormula(st, m.fr) ? findFormula(st, m.fr).nome : "";
+      if(fr) fm = "";
+      const defs = defsFor(st, {fr, formato:fm});
       const ssIn = arr(m.ss).map(arr); if(!m.ss && m.s) ssIn[0] = arr(m.s);
       const chIn = arr(m.ch);
-      const x = {id, turno:m.turno||"", kind:st.gioco, formato:fm, pts:1,
+      const x = {id, turno:m.turno||"", kind:st.gioco, formato:fm, fr, pts:1,
         h:Array.from({length:n},(_,j)=>arr(m.h)[j]||""), a:Array.from({length:n},(_,j)=>arr(m.a)[j]||""),
         ss:defs.map((_,k)=>[+(ssIn[k]||[])[0]||0, +(ssIn[k]||[])[1]||0]), ch:defs.map((_,k)=>Number.isInteger(chIn[k]) ? chIn[k] : -1)};
       x.defs = defs.map((d,k)=>d.opts ? Object.assign({opts:d.opts}, d.opts[x.ch[k]] || {spec:"", target:0}) : d);
@@ -404,7 +430,7 @@ function normalize(st){
 function newState(o){
   const f = FORMULE[o.formula];
   if(f.torneo) return normalize({v:1, formula:o.formula, rev:0, updatedAt:0, stato:"programmata", data:o.data,
-    title:o.titolo, subtitle:[o.fase, o.luogo].filter(Boolean).join(" · "), gioco:o.gioco, formato:o.formato,
+    title:o.titolo, subtitle:[o.fase, o.luogo].filter(Boolean).join(" · "), gioco:o.gioco, formule:o.formule, formato:"",
     home:clone(CLUB), away:{name:"",city:"",badge:""}, inCorso:[], matches:[], nextId:1});
   const away = {name:o.ospite, city:o.citta, badge:(o.ospite||"?").trim().charAt(0).toUpperCase()};
   return normalize({v:1, formula:o.formula, rev:0, updatedAt:0, stato:"programmata", data:o.data,
@@ -427,9 +453,82 @@ function champion(st=S){
   return {n: namesOf(fin, w), coppia: cp, label: (pre ? pre + " · " : "") + (cp ? "Vincitori" : "Vincitore")};
 }
 /* ---- torneo: formula della partita ("Italiana ai 100", "2 su 3 Italiana ai 100", "A ai x + B ai y + bella a scelta") ---- */
-function parseSet(t){ const mm = String(t).trim().match(/^(.+?)\s+(?:ai\s+)?(\d+)$/i); return mm ? {spec:mm[1].trim(), target:+mm[2]} : null; }
+/* formule del torneo, compilate col modulo: {nome, n: 1|3|5, sets:[{spec, target} | {scelta:true}]} */
+const SPECIALITA = ["5 Birilli (Italiana)", "Goriziana semplici-doppi", 'Goriziana "Filotto 60"'];
+const FB_NUOVA = {nome:"Normale", n:1, sets:[{spec:"", target:0}]};
+function formulaDefs(f){
+  const fixed = [];
+  f.sets.slice(0, f.n).forEach(x=>{ if(!x.scelta && x.spec && x.target && !fixed.some(y=>y.spec===x.spec && y.target===x.target)) fixed.push({spec:x.spec, target:+x.target}); });
+  return f.sets.slice(0, f.n).map(x=>x.scelta ? (fixed.length===1 ? Object.assign({}, fixed[0]) : {opts:fixed.map(y=>Object.assign({}, y))}) : {spec:x.spec||"?", target:+x.target||0});
+}
+const findFormula = (st, nome) => (st.formule||[]).find(f=>f.nome.trim().toLowerCase()===String(nome||"").trim().toLowerCase());
+function defsFor(st, m){
+  if(m.fr){ const f = findFormula(st, m.fr); if(f) return formulaDefs(f); }
+  if(m.formato){ const p = parseFormato(m.formato); if(p.sets) return p.sets; }
+  if(st.formule && st.formule.length) return formulaDefs(st.formule[0]);
+  return [{spec:"?", target:0}];
+}
+function normFormula(f, i){
+  const n = [1,3,5].includes(+f.n) ? +f.n : 1, sets = arr(f.sets).map(x=>x && x.scelta ? {scelta:true} : {spec:String((x||{}).spec||""), target:+(x||{}).target||0});
+  while(sets.length<n) sets.push(Object.assign({}, sets.filter(x=>!x.scelta).pop() || {spec:"", target:0}));
+  return {nome:String(f.nome||"").trim() || (i ? "Formula " + (i+1) : "Normale"), n, sets:sets.slice(0, n)};
+}
+/* modulo HTML di una formula (nuova gara e finestra degli incontri) */
+function fbHTML(f, idx, named){
+  const n = f.n || 1, opt = (v, t, sel) => `<option value="${esc(v)}"${sel ? " selected" : ""}>${esc(t)}</option>`;
+  let rows = "";
+  for(let k=0; k<n; k++){
+    let x = f.sets[k] || Object.assign({}, f.sets.filter(y=>!y.scelta).pop() || {spec:"", target:0});
+    const last = n>1 && k===n-1; if(x.scelta && !last) x = {spec:"", target:0};
+    const inList = SPECIALITA.includes(x.spec), altro = !x.scelta && (!!x.altro || (!!x.spec && !inList)), sc = !!x.scelta;
+    const r0 = f.sets[0] || {}, copy = k>0 && !sc && x.spec===r0.spec && +x.target===+r0.target && !!x.altro===!!r0.altro;
+    rows += `<div class="fbr${sc ? " fsc" : ""}" data-k="${k}"${copy ? ` data-copy="1"` : ""}><span class="fbl">${n>1 ? (k+1) + "° set" : "Set"}</span>
+      <select data-f="spec" aria-label="Specialità del ${k+1}° set">${opt("", "— specialità —", !x.spec && !sc)}${SPECIALITA.map(v=>opt(v, v, x.spec===v)).join("")}${opt("__altro", "Altro…", altro)}${last ? opt("__scelta", "A scelta all'acchito", sc) : ""}</select>
+      <input data-f="pt" type="number" inputmode="numeric" min="1" placeholder="punti" aria-label="Punti del ${k+1}° set" value="${sc || !x.target ? "" : x.target}"${sc ? " hidden" : ""}>
+      <input data-f="altro" placeholder="Nome della specialità" value="${altro ? esc(x.spec) : ""}"${altro ? "" : " hidden"}></div>`;
+  }
+  return `<div class="fb" data-fb="${idx}" data-named="${named ? 1 : 0}"><div class="fbh">
+      ${named ? `<input class="fbn" data-f="nome" value="${esc(f.nome)}" placeholder="Nome della formula" aria-label="Nome della formula">` : ""}
+      <select data-f="n" aria-label="Numero di set">${opt(1, "Set secco", n===1)}${opt(3, "2 su 3", n===3)}${opt(5, "3 su 5", n===5)}</select>
+      ${named && idx>0 ? `<button type="button" class="del" data-e="delf" data-i="${idx}">Togli</button>` : ""}</div>${rows}</div>`;
+}
+function readFB(fb, strict){
+  const q = sel => fb.querySelector(sel), n = +q('[data-f="n"]').value || 1, errs = [];
+  const nome = q('[data-f="nome"]') ? q('[data-f="nome"]').value.trim() : "Normale";
+  const sets = [...fb.querySelectorAll(".fbr")].map((r, k)=>{
+    const sel = r.querySelector('[data-f="spec"]').value, pt = +r.querySelector('[data-f="pt"]').value || 0;
+    if(sel==="__scelta") return {scelta:true};
+    const spec = sel==="__altro" ? r.querySelector('[data-f="altro"]').value.trim() : sel;
+    if(strict && !spec) errs.push(`${n>1 ? (k+1) + "° set" : "set"}: ${sel==="__altro" ? "scrivi il nome della specialità" : "scegli la specialità"}`);
+    if(strict && !pt) errs.push(`${n>1 ? (k+1) + "° set" : "set"}: indica i punti`);
+    return sel==="__altro" ? {spec, target:pt, altro:true} : {spec, target:pt};
+  });
+  if(strict && fb.dataset.named==="1" && !nome) errs.push("dai un nome alla formula");
+  return {f:{nome, n, sets}, errs};
+}
+/* cambiando numero di set o specialità il modulo si ridisegna (i valori scritti restano) */
+/* le righe ancora uguali al 1° set lo seguono (2 su 3 nella stessa specialità: basta compilare la prima riga) */
+function followFirst(fb){
+  const r0 = fb.querySelector('.fbr[data-k="0"]'); if(!r0) return;
+  fb.querySelectorAll('.fbr[data-copy="1"]').forEach(r=>["spec","pt","altro"].forEach(k=>{
+    const a = r0.querySelector(`[data-f="${k}"]`), b = r.querySelector(`[data-f="${k}"]`); if(a && b) b.value = a.value; }));
+}
+document.addEventListener("input", e=>{
+  const fb = e.target.closest && e.target.closest(".fb"); if(!fb || !/^(pt|altro)$/.test(e.target.dataset.f||"")) return;
+  if(e.target.closest('.fbr[data-k="0"]')) followFirst(fb);
+});
+document.addEventListener("change", e=>{
+  const fb = e.target.closest && e.target.closest(".fb"); if(!fb || !/^(n|spec)$/.test(e.target.dataset.f||"")) return;
+  if(e.target.closest('.fbr[data-k="0"]')) followFirst(fb);
+  const {f} = readFB(fb, false); fb.outerHTML = fbHTML(f, +fb.dataset.fb, fb.dataset.named==="1");
+  const nf = document.querySelector(`.fb[data-fb="${fb.dataset.fb}"][data-named="${fb.dataset.named}"]`);
+  const alt = nf && nf.querySelector('.fbr:not([hidden]) [data-f="altro"]:not([hidden])'); if(alt && !alt.value) alt.focus();
+});
+function parseSet(t){ const mm = String(t).trim().match(/^(.+?)\s+(?:ai?\s+)?(\d+)(?:\s*punti)?$/i); return mm ? {spec:mm[1].trim(), target:+mm[2]} : null; }
 function parseFormato(str){
-  const t = String(str||"").trim().replace(/\s+/g, " "); if(!t) return {err:"manca la formula della partita (es. Italiana ai 100)"};
+  let t = String(str||"").trim().replace(/\s+/g, " "); if(!t) return {err:"manca la formula della partita (es. Italiana ai 100)"};
+  t = t.replace(/^al meglio de(?:i|lle)\s+(?:3|tre)\s*(?:set|partite)?\s*:?\s*/i, "2 su 3 ").replace(/^al meglio de(?:i|lle)\s+(?:5|cinque)\s*(?:set|partite)?\s*:?\s*/i, "3 su 5 ")
+       .replace(/^(\d)\s*\/\s*(\d)\s+/, "$1 su $2 ").replace(/^due su tre\s+/i, "2 su 3 ").replace(/^tre su cinque\s+/i, "3 su 5 ");
   const bo = t.match(/^(\d+)\s*su\s*(\d+)\s*:?\s*(.+)$/i); let parts;
   if(bo){ const n = +bo[2]; if(n%2===0 || +bo[1]!==(n+1)/2) return {err:`"${bo[1]} su ${bo[2]}" non torna: si scrive 2 su 3 oppure 3 su 5`}; parts = Array(n).fill(bo[3]); }
   else parts = t.split("+").map(x=>x.trim()).filter(Boolean);
@@ -666,7 +765,7 @@ function matchHTML(m, i){
     extra = `<div class="rinfo">${m.h.map((_,f)=>`<span class="${f<idx||done?"d":""} ${!done&&f===idx?"c":""}">${f+1}ª</span>`).join("")}
       ${done ? "Staffetta conclusa" : idx<n-1 ? `Cambio a <b>${(idx+1)*m.step}</b>` : "Ultima frazione"} · vale <b>${p} ${p>1?"punti":"punto"}</b></div>`;
   }
-  return `<article class="m ${act?"active":""}" data-row="${i}">
+  return `<article class="m ${act?"active":""} ${w ? "won-"+w : ""}" data-row="${i}">
     <div class="mh">${no}${isTorneo() ? "" : `<span>${esc(m.kind)}</span>`}${specHTML(m,i)}${setc}${chip}${hasPts(m) ? `<button class="trend" data-tr="${i}" title="Andamento del punteggio" aria-label="Andamento del punteggio">${TREND_ICON}</button>` : ""}</div>
     <div class="duel">${sideHTML(m,i,"h")}${sideHTML(m,i,"a")}</div>${extra}</article>`;
 }
@@ -742,9 +841,8 @@ function regiaHomeHTML(idx){
       <div class="fs" data-fs="to" hidden><label for="ng-t">Nome del torneo</label><input id="ng-t" required disabled placeholder="es. 1° Memorial Luca Tamburini">
         <label for="ng-fa">Fase / giornata</label><input id="ng-fa" disabled placeholder="es. Batteria 1 (facoltativo)">
         <label for="ng-gi">Gioco</label><select id="ng-gi" disabled><option value="Singolo">Singoli</option><option value="Coppia">Coppie</option></select>
-        <label for="ng-p">Partita</label><input id="ng-p" required disabled placeholder="es. Italiana ai 100">
-        <p class="hint">Set secco <b>Italiana ai 100</b> · al meglio dei tre <b>2 su 3 Italiana ai 100</b> ·
-          set misti <b>5 Birilli ai 120 + Filotto 60 ai 600 + bella a scelta</b>. Si può cambiare per singoli incontri.</p></div>
+        <label>Partita</label>${fbHTML(FB_NUOVA, 0, false).replace(/<(select|input)/g, "<$1 disabled")}
+        <p class="hint">Vale per tutti gli incontri; per la finale o altri incontri si possono aggiungere altre formule nella finestra degli incontri.</p></div>
       <label for="ng-l">Luogo</label><input id="ng-l" placeholder="es. Modena">
       <div class="fs" data-fs="sq"><label for="ng-o">Squadra avversaria</label><input id="ng-o" required placeholder="es. Tempio B">
         <label for="ng-c">Città avversaria</label><input id="ng-c" placeholder="es. Modena · MO"></div>
@@ -945,18 +1043,21 @@ function serialInc(){
   S.matches.forEach(m=>{
     if(m.turno!==cur){ cur = m.turno; if(cur || t) t += (t ? "\n" : "") + "# " + cur + "\n"; }
     const nm = sd => namesOf(m, sd) || "?";
-    t += nm("h") + " - " + nm("a") + (m.formato ? " | " + m.formato : "") + "\n";
+    t += nm("h") + " - " + nm("a") + (m.fr ? " | " + m.fr : m.formato ? " | " + m.formato : "") + "\n";
   });
   return t;
 }
 function openInc(){
-  $("#ed-g").value = S.gioco; $("#ed-p").value = S.formato || "";
+  $("#ed-g").value = S.gioco; edForms = clone(S.formule); paintForms();
   $("#ed-x").value = serialInc(); $("#ed-m").textContent = ""; incArm = 0; paintIncBtn();
   $("#edm").hidden = false; setTimeout(()=>$("#ed-x").focus(), 50);
 }
+let edForms = [];
+function paintForms(){ $("#ed-fs").innerHTML = edForms.map((f, i)=>fbHTML(f, i, true)).join(""); }
+const readForms = strict => [...$("#ed-fs").querySelectorAll(".fb")].map(fb=>readFB(fb, strict));
 function closeInc(){ $("#edm").hidden = true; incArm = 0; }
 function paintIncBtn(){ const b = $('#edm [data-e="ok"]'); b.classList.toggle("arm", !!incArm); b.textContent = incArm ? "Conferma: applica" : "Applica"; }
-function parseInc(txt, gioco){
+function parseInc(txt, gioco, forms){
   const out = [], errs = []; let turno = "";
   const side = t=>{ t = (t||"").trim(); if(t==="?" || t==="-") t = "";
     const v = gioco==="Coppia" ? t.split("/").map(x=>x.trim()) : [t];
@@ -965,8 +1066,11 @@ function parseInc(txt, gioco){
     const l = raw.trim(); if(!l) return;
     if(l.startsWith("#")){ turno = l.replace(/^#+\s*/, ""); return; }
     const [body, ov] = l.split("|"); let o = null;
-    if(ov!==undefined){ const f = ov.trim().replace(/\s+/g, " "), pf = parseFormato(f);
-      if(pf.err) errs.push(`Riga ${n+1}: ${pf.err}`); else o = {formato:f}; }
+    if(ov!==undefined){ const f = ov.trim().replace(/\s+/g, " "), nf = findFormula({formule:forms}, f);
+      if(nf) o = {fr:nf.nome};
+      else { const pf = parseFormato(f);
+        if(pf.err) errs.push(`Riga ${n+1}: "${f}" non è il nome di una formula (${forms.map(x=>x.nome).join(", ")}) e non si capisce come partita: ${pf.err}`);
+        else o = {formato:f}; } }
     const parts = (" " + body.trim() + " ").split(/\s(?:-|–|vs\.?)\s/i);
     if(parts.length>2) errs.push(`Riga ${n+1}: più di due giocatori/coppie ("${l}"): separa i due avversari con un solo " - "`);
     out.push(Object.assign({turno, h:side(parts[0]), a:side(parts[1])}, o||{}));
@@ -974,11 +1078,13 @@ function parseInc(txt, gioco){
   return {out, errs};
 }
 function applyInc(){
-  const g = $("#ed-g").value, fmt = $("#ed-p").value.trim().replace(/\s+/g, " ");
-  const {out, errs} = parseInc($("#ed-x").value, g);
+  const g = $("#ed-g").value, rf = readForms(true), ferr = [];
+  rf.forEach((x, i)=>x.errs.forEach(e=>ferr.push(`Formula "${x.f.nome || (i+1)}": ${e}`)));
+  const forms = rf.map((x, i)=>normFormula(x.f, i));
+  if(new Set(forms.map(f=>f.nome.toLowerCase())).size < forms.length) ferr.push("due formule hanno lo stesso nome");
+  if(ferr.length){ $("#ed-m").textContent = ferr.slice(0,3).join(" · "); incArm = 0; paintIncBtn(); return; }
+  const {out, errs} = parseInc($("#ed-x").value, g, forms);
   if(errs.length){ $("#ed-m").textContent = errs.slice(0,3).join(" · "); incArm = 0; paintIncBtn(); return; }
-  const pd = parseFormato(fmt);
-  if(pd.err && (out.some(p=>!p.formato) || fmt)){ $("#ed-m").textContent = "Partita: " + pd.err; incArm = 0; paintIncBtn(); return; }
   const old = S.matches, used = new Set(), res = [];
   const key = m => [m.turno, ...m.h, ...m.a].map(x=>String(x||"").trim().toLowerCase()).join("|");
   const pos = (list, i) => list.slice(0, i).filter(x=>x.turno===list[i].turno).length;
@@ -987,7 +1093,7 @@ function applyInc(){
     let o = old.find(x=>!used.has(x.id) && key(x)===key(p));
     if(!o){ const k = pos(out, i); o = old.find((x, j)=>!used.has(x.id) && x.turno===p.turno && pos(old, j)===k); }
     if(o) used.add(o.id);
-    res.push({id: o ? o.id : next++, turno:p.turno, kind:g, formato:p.formato||"", pts:1, h:p.h, a:p.a,
+    res.push({id: o ? o.id : next++, turno:p.turno, kind:g, formato:p.formato||"", fr:p.fr||"", pts:1, h:p.h, a:p.a,
       ss: o ? o.ss.map(x=>x.slice()) : [], ch: o ? o.ch.slice() : []});
   });
   const lost = old.filter(x=>!used.has(x.id) && hasPts(x));
@@ -998,13 +1104,15 @@ function applyInc(){
   }
   snapshot();
   const actIds = (S.inCorso||[]).map(i=>old[i] && old[i].id);
-  Object.assign(S, {gioco:g, formato:fmt, matches:res, nextId:next});
+  Object.assign(S, {gioco:g, formule:forms, formato:"", matches:res, nextId:next});
   S.inCorso = res.map((m, i)=>actIds.includes(m.id) ? i : -1).filter(i=>i>=0);
   S = normalize(S); closeInc(); commit(); setFlash("Incontri aggiornati: premi PUBBLICA per mostrarli al pubblico");
 }
 $("#edm").addEventListener("click", e=>{
   const b = e.target.closest("[data-e]"); if(e.target.id==="edm" || (b && b.dataset.e==="no")){ closeInc(); return; }
   if(b && b.dataset.e==="ok") applyInc();
+  if(b && b.dataset.e==="addf"){ edForms = readForms(false).map(x=>x.f); edForms.push(normFormula({nome:"Finale", n:1, sets:[Object.assign({}, (edForms[0]||FB_NUOVA).sets[0])]}, edForms.length)); paintForms(); }
+  if(b && b.dataset.e==="delf"){ edForms = readForms(false).map(x=>x.f); edForms.splice(+b.dataset.i, 1); paintForms(); }
 });
 $("#ed-x").addEventListener("input", ()=>{ if(incArm){ incArm = 0; paintIncBtn(); $("#ed-m").textContent = ""; } });
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("#edm").hidden) closeInc(); });
@@ -1050,8 +1158,10 @@ app.addEventListener("submit", async e=>{
   if(e.target.id==="newgara"){
     const o = {formula:$("#ng-f").value, data:$("#ng-d").value, giornata:$("#ng-g").value.trim(), luogo:$("#ng-l").value.trim(), ospite:$("#ng-o").value.trim(), citta:$("#ng-c").value.trim()};
     const tor = !!FORMULE[o.formula].torneo;
-    if(tor) Object.assign(o, {titolo:$("#ng-t").value.trim(), fase:$("#ng-fa").value.trim(), gioco:$("#ng-gi").value, formato:$("#ng-p").value.trim().replace(/\s+/g, " ")});
-    if(tor){ const pf = parseFormato(o.formato); if(pf.err){ $("#ng-msg").textContent = "Partita: " + pf.err; return; } }
+    if(tor){ const rd = readFB(e.target.querySelector(".fb"), true);
+      if(rd.errs.length){ $("#ng-msg").textContent = "Partita: " + rd.errs.join(" · "); return; }
+      $("#ng-msg").textContent = "";
+      Object.assign(o, {titolo:$("#ng-t").value.trim(), fase:$("#ng-fa").value.trim(), gioco:$("#ng-gi").value, formule:[rd.f]}); }
     const id = tor ? ["torneo", o.data, slug(o.titolo), slug(o.fase)].filter(Boolean).join("-") : [o.formula, o.data, slug(o.ospite)].filter(Boolean).join("-");
     if(INDEX && INDEX[id]){ location.search = "?regia&gara=" + id; return; }
     const st = newState(o);
