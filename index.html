@@ -180,7 +180,7 @@ body.ed [data-logo]{cursor:pointer}
 /* torneo a eliminazione diretta */
 .turno{font-family:var(--fh);font-weight:600;font-size:17px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:10px 0 -2px;display:flex;align-items:center;gap:10px}
 .turno::after{content:"";flex:1;height:1px;background:rgba(246,200,83,.3)}
-.chip{max-width:62%;overflow:hidden;text-overflow:ellipsis}
+.chip{max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .champ{display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 12px;border-radius:12px;border:1px solid rgba(246,200,83,.5);text-align:center;
   background:radial-gradient(ellipse at 50% 0%,rgba(246,200,83,.22),var(--panel) 70%)}
 .champ .k{font-size:14px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
@@ -262,6 +262,8 @@ body.ed [data-logo]{cursor:pointer}
 /* andamento dell'incontro */
 .trend{margin-left:auto;border:0;background:transparent;color:var(--mute);padding:2px 3px;cursor:pointer;display:inline-grid;place-items:center;border-radius:4px;flex:none}
 .chip+.trend{margin-left:0}
+.m{position:relative} .mh{padding-right:30px}
+.mh .trend{position:absolute;top:7px;right:8px;margin:0}
 .trend svg{width:21px;height:21px}
 .trend:hover,.trend:focus-visible{color:var(--gold)}
 #trm{position:fixed;inset:0;z-index:30;background:rgba(3,7,14,.75);display:grid;place-items:center;padding:16px}
@@ -275,6 +277,13 @@ body.ed [data-logo]{cursor:pointer}
 #trm table{width:100%;border-collapse:collapse;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
 #trm th{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);font-weight:700}
 #trm td,#trm th{padding:5px 6px;border-top:1px solid var(--line);text-align:right;white-space:nowrap}
+#trm table.st{font-size:18px}
+#trm .st .spc{text-align:left;white-space:normal;color:var(--ink);font-weight:600;font-size:15px;text-transform:uppercase;letter-spacing:.03em;width:100%}
+#trm .st .spc b{color:var(--gold);font-weight:700}
+#trm .st td.w{color:var(--gold)}
+#trm .st tr.cur td{background:rgba(246,200,83,.08)}
+#trm .st td.ng{text-align:center;color:var(--dim);font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+#trm .st th:first-child{color:var(--ink)}
 #trm td:first-child,#trm th:first-child{text-align:left;color:var(--mute);font-weight:600}
 #trm th.h{color:var(--home)} #trm th.a{color:var(--away)}
 #trm .d{color:var(--dim);font-size:14px;margin-left:5px;display:inline-block;min-width:2.6em;text-align:left}
@@ -758,7 +767,7 @@ function matchHTML(m, i){
   const chip = w ? (isTorneo() ? `<span class="chip win">Vince ${esc(sideName(m,w))}</span>` : `<span class="chip win">+${p} ${esc(teamShort(w))}</span>`)
              : act ? `<span class="chip run">In corso</span>`
              : !hasPts(m) ? `<span class="chip wait">Da giocare</span>` : "";
-  let extra = m.defs && m.defs.length>1 ? setsHTML(m, i) : "";
+  let extra = m.defs && m.defs.length>1 && editor ? setsHTML(m, i) : "";
   const setc = m.defs && m.defs.length>1 ? `<span class="setc">Set <b>${m.sw[0]}–${m.sw[1]}</b></span>` : "";
   if(m.kind==="Staffetta"){
     const idx = relayIdx(m), n = m.h.length, done = !!w;
@@ -766,7 +775,7 @@ function matchHTML(m, i){
       ${done ? "Staffetta conclusa" : idx<n-1 ? `Cambio a <b>${(idx+1)*m.step}</b>` : "Ultima frazione"} · vale <b>${p} ${p>1?"punti":"punto"}</b></div>`;
   }
   return `<article class="m ${act?"active":""} ${w ? "won-"+w : ""}" data-row="${i}">
-    <div class="mh">${no}${isTorneo() ? "" : `<span>${esc(m.kind)}</span>`}${specHTML(m,i)}${setc}${chip}${hasPts(m) ? `<button class="trend" data-tr="${i}" title="Andamento del punteggio" aria-label="Andamento del punteggio">${TREND_ICON}</button>` : ""}</div>
+    <div class="mh">${no}${isTorneo() ? "" : `<span>${esc(m.kind)}</span>`}${specHTML(m,i)}${setc}${chip}${hasPts(m) || (m.defs && m.defs.length>1) ? `<button class="trend" data-tr="${i}" title="${m.defs && m.defs.length>1 ? "Parziali dei set e andamento" : "Andamento del punteggio"}" aria-label="${m.defs && m.defs.length>1 ? "Parziali dei set e andamento" : "Andamento del punteggio"}">${TREND_ICON}</button>` : ""}</div>
     <div class="duel">${sideHTML(m,i,"h")}${sideHTML(m,i,"a")}</div>${extra}</article>`;
 }
 function updText(){
@@ -782,8 +791,7 @@ function torneoHTML(){
   const c = champion(), n = S.matches.length, fatti = S.matches.filter(m=>winner(m)).length;
   let html = c ? `<section class="champ"><span class="k">🏆 ${esc(c.label)}</span><span class="n">${esc(c.n)}</span></section>` : "";
   html += `<div class="upd">${updText()}</div>`;
-  if(n) html += `<div class="tinfo">${S.gioco==="Coppia" ? "Coppie" : "Singoli"} · <b>${fatti}</b> incontri conclusi su <b>${n}</b></div>`;
-  else html += `<p class="empty">Gli incontri non sono ancora stati inseriti.</p>`;
+  if(!n) html += `<p class="empty">Gli incontri non sono ancora stati inseriti.</p>`;
   let cur = null;
   S.matches.forEach((m,i)=>{ if(m.turno!==cur){ cur = m.turno; if(cur) html += `<h2 class="turno">${esc(cur)}</h2>`; } html += matchHTML(m,i); });
   if(editor) html += `<button class="incbtn" data-inc>✎ ${n ? "Modifica gli incontri" : "Inserisci gli incontri"}</button>`;
@@ -990,11 +998,22 @@ function openTrend(i){
   trOff = ()=>ref.off("value", cb);
 }
 function closeTrend(){ $("#trm").hidden = true; if(trOff) trOff(); trOff = null; trI = -1; }
+/* parziali dei set, in testa al popup */
+function setsTableHTML(m){
+  const n = m.defs.length;
+  return `<table class="st"><thead><tr><th>Set ${m.sw[0]}–${m.sw[1]}</th><th class="spc"></th><th class="h">${esc(sideName(m,"h"))}</th><th class="a">${esc(sideName(m,"a"))}</th></tr></thead><tbody>` +
+    m.defs.map((d,k)=>{
+      const x = m.ss[k], w = setWin(m,k), skip = !(x[0]||x[1]) && m.play<0;
+      const sp = d.opts && !d.target ? "a scelta all'acchito" : `${esc(d.spec)} <b>ai ${d.target}</b>`;
+      return `<tr class="${k===m.play ? "cur" : ""}"><td>${setLabel(k,n)}</td><td class="spc">${sp}</td>` +
+        (skip ? `<td colspan="2" class="ng">non giocato</td>` : `<td class="${w==="h" ? "w" : ""}">${x[0]}</td><td class="${w==="a" ? "w" : ""}">${x[1]}</td>`) + `</tr>`;
+    }).join("") + `</tbody></table>` + `<h4>Andamento</h4>`;
+}
 function drawTrend(){
   if(trI<0 || !S || !S.matches[trI]) return;
   const m = S.matches[trI], box = $("#trm .bx"), multi = !!(m.defs && m.defs.length>1);
   const head = multi ? `${trI+1} · ${esc(m.turno||"")}` : `${trI+1} · ${esc(isTorneo() ? (m.turno||"") : m.kind)} · ${esc(m.spec||"")}${m.target ? ` <b>ai ${m.target}</b>` : ""}`;
-  let html = `<button class="cls" data-cl aria-label="Chiudi">✕</button><h3>${head}</h3>`;
+  let html = `<button class="cls" data-cl aria-label="Chiudi">✕</button><h3>${head}</h3>` + (multi ? setsTableHTML(m) : "");
   if(trData===null){ box.innerHTML = html + `<p class="hint">Caricamento…</p>`; return; }
   if(trData==="err"){ box.innerHTML = html + `<p class="hint">Cronologia non disponibile.</p>`; return; }
   const ent = Object.values(trData).filter(e=>e && e.t && e.m).sort((a,b)=>a.t-b.t), key = mkey(m, trI), series = {};
@@ -1004,7 +1023,7 @@ function drawTrend(){
     ps.push({t:e.t, h:+a[0]||0, a:+a[1]||0});
   });
   const ks = Object.keys(series).map(Number).sort((a,b)=>a-b).filter(k=>series[k].length>1);
-  if(!ks.length){ box.innerHTML = html + `<p class="hint">Nessun punteggio pubblicato per questo incontro: la cronologia si riempie a ogni PUBBLICA.</p>`; return; }
+  if(!ks.length){ box.innerHTML = html + `<p class="hint">${multi ? "Il grafico" : "La cronologia"} si riempie a ogni pubblicazione dei punteggi: per ora non ci sono dati.</p>`; return; }
   html += `<div class="lg"><span class="h">● ${esc(sideName(m,"h"))}</span><span class="a">● ${esc(sideName(m,"a"))}</span></div>`;
   ks.forEach(k=>{
     const d = multi ? (m.defs[k] || {}) : m;
