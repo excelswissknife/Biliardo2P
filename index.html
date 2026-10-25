@@ -149,6 +149,13 @@ body.ed [data-logo]{cursor:pointer}
 .sp.pick{cursor:pointer;border-bottom:1px dashed var(--gold)}
 .glist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:10px}
 .gcard{display:flex;flex-direction:column;gap:4px;padding:12px 14px;border-radius:10px;background:var(--panel);border:1px solid var(--line);color:var(--ink);text-decoration:none}
+/* regia, elenco gare: pulsante Elimina (doppio clic di conferma) */
+.gwrap{position:relative;display:flex;flex-direction:column}
+.gwrap .gcard{flex:1;padding-bottom:44px}
+.gdel{position:absolute;right:10px;bottom:10px;font:600 13px system-ui,"Segoe UI",sans-serif;padding:5px 10px;border-radius:6px;border:1px solid #6b3a3a;background:transparent;color:#ffb0b0;cursor:pointer}
+.gdel:hover{background:rgba(127,29,29,.35)}
+.gdel.arm{background:#7f1d1d;border-color:#ef4444;color:#fff}
+.gdel:disabled{opacity:.5;cursor:default}
 .gcard:hover,.gcard:focus-visible{border-color:rgba(246,200,83,.6);outline:none}
 .gtop{display:flex;align-items:center;gap:8px;color:var(--mute);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:14px}
 .gtit{font-family:var(--fh);font-weight:600;font-size:18px;text-transform:uppercase;letter-spacing:.04em}
@@ -826,10 +833,10 @@ function listHTML(idx, forRegia){
     const st = g.stato==="live" ? `<span class="chip run">LIVE</span>` : g.stato==="finita" ? `<span class="chip wait">Finale</span>` : `<span class="chip wait">In programma</span>`;
     const p = arr(g.punti);
     const href = forRegia ? `?regia&gara=${g.id}` : `?gara=${g.id}`;
-    return `<a class="gcard" href="${href}"><div class="gtop"><span>${esc(fmtDate(g.data))}</span>${st}</div>
+    return (forRegia ? `<div class="gwrap">` : "") + `<a class="gcard" href="${href}"><div class="gtop"><span>${esc(fmtDate(g.data))}</span>${st}</div>
       <div class="gtit">${esc(g.titolo)}</div><div class="gsub">${esc(g.sottotitolo)}</div>
       ${g.tipo==="torneo" ? `<div class="gvs t">${g.vincitore ? `🏆 <b>${esc(g.vincitore)}</b>` : `${+g.fatti||0} incontri conclusi su ${+g.totale||0}`}</div>`
-        : `<div class="gvs"><span>${esc(g.casa)}</span><b>${+p[0]||0} – ${+p[1]||0}</b><span>${esc(g.ospite)}</span></div>`}</a>`;
+        : `<div class="gvs"><span>${esc(g.casa)}</span><b>${+p[0]||0} – ${+p[1]||0}</b><span>${esc(g.ospite)}</span></div>`}</a>` + (forRegia ? delBtnHTML(g) + `</div>` : "");
   };
   return items.length ? `<div class="glist">${items.map(card).join("")}</div>` : `<p class="empty">Nessuna gara ancora pubblicata. Le dirette compariranno qui.</p>`;
 }
@@ -860,11 +867,34 @@ function regiaHomeHTML(idx){
         <label for="ng-c">Città avversaria</label><input id="ng-c" placeholder="es. Modena · MO"></div>
       <button type="submit">Crea gara</button><p class="hint" id="ng-msg"></p>
     </form>
-    <h2 class="lh">Gare</h2>${listHTML(idx, true)}</main>`;
+    <h2 class="lh">Gare</h2>${delMsg ? `<p class="${delErr ? "err" : "hint"}">${esc(delMsg)}</p>` : ""}${listHTML(idx, true)}</main>`;
 }
 
 /* ================= render ================= */
 let mode = "loading", INDEX = null, lastEmail = "";
+/* ---- regia: elimina una gara dall'elenco (primo clic arma, secondo entro 4 s conferma) ---- */
+let delArm = {id:"", t:0}, delBusy = "", delMsg = "", delErr = false;
+function delBtnHTML(g){
+  const armed = delArm.id===g.id && Date.now()-delArm.t<4000, busy = delBusy===g.id;
+  return `<button class="gdel${armed ? " arm" : ""}" data-del="${esc(g.id)}"${busy ? " disabled" : ""} title="Elimina definitivamente la gara">${busy ? "Eliminazione…" : armed ? (g.stato==="live" ? "Conferma: elimina (è LIVE)" : "Conferma: elimina") : "🗑 Elimina"}</button>`;
+}
+async function delGara(id){
+  if(!(delArm.id===id && Date.now()-delArm.t<4000)){ delArm = {id, t:Date.now()}; delMsg = ""; render(); setTimeout(render, 4100); return; }
+  const tit = INDEX && INDEX[id] ? [INDEX[id].titolo, INDEX[id].sottotitolo].filter(Boolean).join(" · ") : id;
+  delArm = {id:"", t:0}; delBusy = id; render();
+  const base = {["gare/"+id]: null, ["indice/"+id]: null};
+  try{
+    try{ await dbWrite(Object.assign({["storia/"+id]: null}, base)); }
+    catch(e){ if(!/PERMISSION/i.test(String(e && e.code))) throw e; await dbWrite(base); }   /* regole senza "storia" */
+    try{ await dbWrite({["visite/"+id]: null}); }catch(e){}                                  /* contatore: facoltativo */
+    try{ localStorage.removeItem("b2p_live_bozza_" + id); }catch(e){}
+    delErr = false; delMsg = "Gara eliminata: " + tit;
+  }catch(e){
+    delErr = true; delMsg = /PERMISSION/i.test(String(e && e.code)) ? "Eliminazione rifiutata: utente non autorizzato o regole del database da controllare"
+                                                                  : "Eliminazione non riuscita: controlla la connessione e riprova";
+  }
+  delBusy = ""; render();
+}
 let shown = "";
 const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
 function scoreFx(el, from, to, sd){
@@ -1152,6 +1182,7 @@ document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("#edm").hidd
 function toggleAct(i){ snapshot(); const a = new Set(S.inCorso||[]); a.has(i) ? a.delete(i) : a.add(i); S.inCorso = [...a].sort(); commit(); }
 app.addEventListener("click", e=>{
   if(e.target.id==="logout"){ signOut(); return; }
+  const dl = e.target.closest("[data-del]"); if(dl){ e.preventDefault(); if(mode==="regiahome" && !dl.disabled) delGara(dl.dataset.del); return; }
   const tb = e.target.closest("[data-tr]"); if(tb){ openTrend(+tb.dataset.tr); return; }
   if(!editor || mode!=="board") return;
   if(e.target.closest("[data-inc]")){ openInc(); return; }
