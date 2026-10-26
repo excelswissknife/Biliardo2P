@@ -152,7 +152,11 @@ body.ed [data-logo]{cursor:pointer}
 /* regia, elenco gare: pulsante Elimina (doppio clic di conferma) */
 .gwrap{position:relative;display:flex;flex-direction:column}
 .gwrap .gcard{flex:1;padding-bottom:44px}
-.gdel{position:absolute;right:10px;bottom:10px;font:600 13px system-ui,"Segoe UI",sans-serif;padding:5px 10px;border-radius:6px;border:1px solid #6b3a3a;background:transparent;color:#ffb0b0;cursor:pointer}
+.gact{position:absolute;right:10px;bottom:10px;display:flex;gap:8px}
+.gdup{font:600 13px system-ui,"Segoe UI",sans-serif;padding:5px 10px;border-radius:6px;border:1px solid #3b5675;background:transparent;color:#cfe0f5;cursor:pointer}
+.gdup:hover{background:rgba(60,200,255,.12)}
+.panel.dupl{border-color:rgba(60,200,255,.6);box-shadow:0 0 0 1px rgba(60,200,255,.25)}
+.gdel{font:600 13px system-ui,"Segoe UI",sans-serif;padding:5px 10px;border-radius:6px;border:1px solid #6b3a3a;background:transparent;color:#ffb0b0;cursor:pointer}
 .gdel:hover{background:rgba(127,29,29,.35)}
 .gdel.arm{background:#7f1d1d;border-color:#ef4444;color:#fff}
 .gdel:disabled{opacity:.5;cursor:default}
@@ -1100,7 +1104,40 @@ let mode = "loading", INDEX = null, lastEmail = "";
 let delArm = {id:"", t:0}, delBusy = "", delMsg = "", delErr = false;
 function delBtnHTML(g){
   const armed = delArm.id===g.id && Date.now()-delArm.t<4000, busy = delBusy===g.id;
-  return `<button class="gdel${armed ? " arm" : ""}" data-del="${esc(g.id)}"${busy ? " disabled" : ""} title="Elimina definitivamente la gara">${busy ? "Eliminazione…" : armed ? (g.stato==="live" ? "Conferma: elimina (è LIVE)" : "Conferma: elimina") : "🗑 Elimina"}</button>`;
+  return `<div class="gact"><button class="gdup" data-dup="${esc(g.id)}" title="Nuova gara con gli stessi dati (giornata successiva)">⧉ Duplica</button><button class="gdel${armed ? " arm" : ""}" data-del="${esc(g.id)}"${busy ? " disabled" : ""} title="Elimina definitivamente la gara">${busy ? "Eliminazione…" : armed ? (g.stato==="live" ? "Conferma: elimina (è LIVE)" : "Conferma: elimina") : "🗑 Elimina"}</button></div>`;
+}
+/* ---- regia: duplica una gara (riempie il modulo Nuova gara; punteggi e nomi dei giocatori non si copiano) ---- */
+let dupSrc = null;
+const ORDINALI = ["Prima","Seconda","Terza","Quarta","Quinta","Sesta","Settima","Ottava","Nona","Decima","Undicesima","Dodicesima","Tredicesima","Quattordicesima","Quindicesima","Sedicesima","Diciassettesima","Diciottesima","Diciannovesima","Ventesima"];
+function nextGiornata(t){
+  t = String(t||"").trim();
+  const w = ORDINALI.findIndex(o=>new RegExp("^" + o + "\\b", "i").test(t));
+  if(w>=0 && w<ORDINALI.length-1) return t.replace(new RegExp("^" + ORDINALI[w], "i"), ORDINALI[w+1]);
+  return t.replace(/(\d+)(?=\s*[ªa°]?\s*giornata\b)|(giornata\s+)(\d+)/i, (m, a, b, c)=>a ? String(+a+1) : b + (+c+1));
+}
+async function dupGara(id){
+  let src = null;
+  try{ if(db) src = normalize((await db.ref("gare/" + id).once("value")).val()); }catch(e){}
+  if(!src){ delErr = true; delMsg = "Non riesco a leggere la gara da duplicare: controlla la connessione"; render(); return; }
+  delMsg = ""; dupSrc = src; render();
+  const f = $("#newgara"); if(!f) return;
+  let fk = src.formula;
+  if(!FORMULE[fk] || FORMULE[fk].vecchia){ const nome = (FORMULE[fk] || {}).nome; fk = (Object.entries(FORMULE).find(([k,x])=>!x.vecchia && x.nome===nome) || Object.entries(FORMULE).find(([k,x])=>!x.vecchia))[0]; }
+  const sel = $("#ng-f"); sel.value = fk; sel.dispatchEvent(new Event("change", {bubbles:true}));
+  const parts = String(src.subtitle||"").split(" · "), tor = !!FORMULE[fk].torneo;
+  if(tor){
+    $("#ng-t").value = src.title || ""; $("#ng-fa").value = nextGiornata(parts.length>1 ? parts.slice(0,-1).join(" · ") : ""); $("#ng-gi").value = src.gioco || "Singolo";
+    $("#ng-l").value = parts.length>1 ? parts.at(-1) : (parts[0] || "");
+    const fb = f.querySelector(".fb"); if(fb && src.formule && src.formule[0]) fb.outerHTML = fbHTML(src.formule[0], 0, false);
+    if($("#ng-nb") && src.tab) $("#ng-nb").value = src.tab.bat.length;
+  } else {
+    $("#ng-g").value = nextGiornata(parts[0] || ""); $("#ng-l").value = parts.slice(1).join(" · ");
+    $("#ng-o").value = src.away.name || ""; $("#ng-c").value = src.away.city || "";
+  }
+  $("#ng-d").value = today();
+  $("#ng-msg").textContent = `Dati copiati da "${[src.title, src.subtitle].filter(Boolean).join(" · ")}": controlla giornata, data, luogo e avversario, poi premi Crea gara.`;
+  f.classList.add("dupl"); f.scrollIntoView({behavior:"smooth", block:"start"});
+  setTimeout(()=>{ const x = tor ? $("#ng-fa") : $("#ng-g"); if(x){ x.focus(); x.select && x.select(); } }, 350);
 }
 async function delGara(id){
   if(!(delArm.id===id && Date.now()-delArm.t<4000)){ delArm = {id, t:Date.now()}; delMsg = ""; render(); setTimeout(render, 4100); return; }
@@ -1521,6 +1558,7 @@ document.addEventListener("keydown", e=>{ if(e.key!=="Escape") return; if(!$("#n
 function toggleAct(i){ snapshot(); const a = new Set(S.inCorso||[]); a.has(i) ? a.delete(i) : a.add(i); S.inCorso = [...a].sort(); commit(); }
 app.addEventListener("click", e=>{
   if(e.target.id==="logout"){ signOut(); return; }
+  const dp = e.target.closest("[data-dup]"); if(dp){ e.preventDefault(); if(mode==="regiahome") dupGara(dp.dataset.dup); return; }
   const dl = e.target.closest("[data-del]"); if(dl){ e.preventDefault(); if(mode==="regiahome" && !dl.disabled) delGara(dl.dataset.del); return; }
   const tb = e.target.closest("[data-tr]"); if(tb){ openTrend(+tb.dataset.tr); return; }
   const pgb = e.target.closest("[data-pg]"); if(pgb && mode==="board"){ tabPage = pgb.dataset.pg; render(); return; }
@@ -1574,7 +1612,12 @@ app.addEventListener("submit", async e=>{
       if(FORMULE[o.formula].tab) o.nbat = Math.max(1, Math.min(32, Math.round(+$("#ng-nb").value) || 4)); }
     const id = tor ? ["torneo", o.data, slug(o.titolo), slug(o.fase)].filter(Boolean).join("-") : [o.formula, o.data, slug(o.ospite)].filter(Boolean).join("-");
     if(INDEX && INDEX[id]){ location.search = "?regia&gara=" + id; return; }
+    if(tor && dupSrc && dupSrc.formula===o.formula && dupSrc.formule) o.formule = [o.formule[0], ...dupSrc.formule.slice(1).filter(x=>x.nome.toLowerCase()!==o.formule[0].nome.toLowerCase())];
     const st = newState(o);
+    if(dupSrc && !tor && (FORMULE[dupSrc.formula] || {}).nome===FORMULE[o.formula].nome){   /* duplicata: stessi titolo e squadra di casa; logo ospite se è la stessa squadra */
+      st.title = dupSrc.title || st.title; st.home = clone(dupSrc.home);
+      if(dupSrc.away && dupSrc.away.name.trim().toLowerCase()===o.ospite.toLowerCase()){ st.away.badge = dupSrc.away.badge || st.away.badge; if(dupSrc.away.logo) st.away.logo = dupSrc.away.logo; }
+    }
     try{ await dbWrite({["gare/"+id]: st, ["indice/"+id]: metaOf(st)}); location.search = "?regia&gara=" + id; }
     catch(err){ $("#ng-msg").textContent = err.code==="PERMISSION_DENIED" ? "Firebase rifiuta la scrittura: controlla le regole del database e l'email dell'utente" : "Non riesco a creare la gara (" + (err.code||err.message) + ")"; }
   }
